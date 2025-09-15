@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { Navbar } from './Navbar';
+import { FloatingChatButton } from './FloatingChatButton';
 
 interface LayoutProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ export const Layout = ({ children }: LayoutProps) => {
       <main className="container mx-auto px-4 py-8">
         {children}
       </main>
+      <FloatingChatButton />
     </div>
   );
 };
