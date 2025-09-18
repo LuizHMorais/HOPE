@@ -1,8 +1,10 @@
 import { Layout } from '@/components/Layout';
 import { FinancialCard } from '@/components/FinancialCard';
+import { AccountsOverview } from '@/components/AccountsOverview';
+import { GoogleSheetsIntegration } from '@/components/GoogleSheetsIntegration';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockSummary, mockTransactions, formatCurrency, getCategoryColor } from '@/lib/mockData';
+import { mockSummary, mockTransactions, mockInsights, formatCurrency, getCategoryColor } from '@/lib/mockData';
 import { TrendingUp, TrendingDown, DollarSign, PiggyBank, Upload, BarChart3 } from 'lucide-react';
 
 const Index = () => {
@@ -46,7 +48,7 @@ const Index = () => {
           <FinancialCard
             title="Saldo Total"
             value={formatCurrency(mockSummary.totalBalance)}
-            subtitle={`+${formatCurrency(mockSummary.monthlyIncome - mockSummary.monthlyExpenses)} este mês`}
+            subtitle={`${mockSummary.monthlyExpenses === 0 ? 'Sem gastos registrados' : `+${formatCurrency(mockSummary.monthlyIncome - mockSummary.monthlyExpenses)} este mês`}`}
             icon={<DollarSign className="w-5 h-5 text-primary" />}
             variant="success"
             trend="up"
@@ -55,7 +57,7 @@ const Index = () => {
           <FinancialCard
             title="Receita Mensal"
             value={formatCurrency(mockSummary.monthlyIncome)}
-            subtitle="Salário + extras"
+            subtitle="Entradas do período"
             icon={<TrendingUp className="w-5 h-5 text-success" />}
             variant="success"
             trend="up"
@@ -64,10 +66,10 @@ const Index = () => {
           <FinancialCard
             title="Gastos Mensais"
             value={formatCurrency(mockSummary.monthlyExpenses)}
-            subtitle="54% do orçamento"
+            subtitle={mockSummary.monthlyExpenses === 0 ? 'Sem gastos no período' : '% do orçamento'}
             icon={<TrendingDown className="w-5 h-5 text-destructive" />}
-            variant="destructive"
-            trend="down"
+            variant={mockSummary.monthlyExpenses === 0 ? "success" : "destructive"}
+            trend={mockSummary.monthlyExpenses === 0 ? "up" : "down"}
           />
           
           <FinancialCard
@@ -78,6 +80,24 @@ const Index = () => {
             variant="success"
             trend="up"
           />
+        </div>
+
+        {/* Accounts Overview and Google Sheets Integration */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Accounts Overview */}
+          <div>
+            <AccountsOverview 
+              accounts={mockInsights[0]?.metrics_json.accounts_summary.top_accounts || []}
+              totalAssets={mockInsights[0]?.metrics_json.accounts_summary.assets_total || 0}
+              totalLiabilities={mockInsights[0]?.metrics_json.accounts_summary.liabilities_total || 0}
+              totalBalance={mockInsights[0]?.metrics_json.accounts_summary.balance_total || 0}
+            />
+          </div>
+
+          {/* Google Sheets Integration */}
+          <div>
+            <GoogleSheetsIntegration />
+          </div>
         </div>
 
         {/* Top Categories and Recent Transactions */}

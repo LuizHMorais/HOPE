@@ -1,11 +1,12 @@
 import { Layout } from '@/components/Layout';
 import { FinancialCard } from '@/components/FinancialCard';
+import { InsightCard } from '@/components/InsightCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { mockSummary, mockTransactions, formatCurrency } from '@/lib/mockData';
-import { FileText, Download, Calendar, TrendingUp, Target, Volume2, Share } from 'lucide-react';
+import { mockSummary, mockTransactions, mockInsights, formatCurrency } from '@/lib/mockData';
+import { FileText, Download, Calendar, TrendingUp, Target, Volume2, Share, Brain, Sparkles, Play } from 'lucide-react';
 
 const Reports = () => {
   const monthlyGoals = [
@@ -90,34 +91,60 @@ const Reports = () => {
           />
         </div>
 
-        {/* Insights and Goals */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* AI Insights */}
+        {/* AI Insights Section */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <Brain className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Insights da IA</h2>
+                <p className="text-muted-foreground">Análises inteligentes baseadas nos seus dados financeiros</p>
+              </div>
+            </div>
+            <Button variant="outline">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Gerar Novos Insights
+            </Button>
+          </div>
+
+          <div className="grid gap-6">
+            {mockInsights.map((insight) => (
+              <InsightCard key={insight.insight_id} insight={insight} />
+            ))}
+          </div>
+        </div>
+
+        {/* Budget Goals */}
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
           <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                <span>Insights da IA</span>
+                <Target className="w-5 h-5 text-primary" />
+                <span>Metas Orçamentárias</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {insights.map((insight, index) => (
-                <div key={index} className="p-4 rounded-lg bg-muted/30 border border-border">
-                  <div className="flex items-start space-x-3">
-                    <Badge 
-                      variant={
-                        insight.type === 'success' ? 'default' : 
-                        insight.type === 'warning' ? 'secondary' : 
-                        'outline'
-                      }
-                      className="mt-1"
-                    >
-                      {insight.type === 'success' ? '✓' : insight.type === 'warning' ? '⚠' : 'ℹ'}
-                    </Badge>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-foreground mb-1">{insight.title}</h4>
-                      <p className="text-sm text-muted-foreground">{insight.description}</p>
-                    </div>
+              {monthlyGoals.map((goal, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{goal.category}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {formatCurrency(goal.spent)} / {formatCurrency(goal.budgeted)}
+                    </span>
+                  </div>
+                  <Progress 
+                    value={goal.percentage} 
+                    className="h-2"
+                  />
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={goal.percentage > 80 ? 'text-warning' : 'text-success'}>
+                      {goal.percentage.toFixed(1)}% utilizado
+                    </span>
+                    <span className="text-muted-foreground">
+                      {formatCurrency(goal.budgeted - goal.spent)} restante
+                    </span>
                   </div>
                 </div>
               ))}
@@ -159,40 +186,42 @@ const Reports = () => {
           </Card>
         </div>
 
-        {/* Audio Report */}
+        {/* Audio Reports */}
         <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Volume2 className="w-5 h-5 text-primary" />
-              <span>Relatório em Áudio</span>
+              <Play className="w-5 h-5 text-primary" />
+              <span>Relatórios em Áudio</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="bg-gradient-primary/10 rounded-lg p-6 border border-primary/20">
-              <div className="flex items-center justify-between mb-4">
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              Ouça os resumos semanais gerados pela IA em formato de áudio com base nos insights.
+            </p>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border">
                 <div>
-                  <h3 className="font-medium text-foreground">Resumo Semanal - Janeiro 2024</h3>
-                  <p className="text-sm text-muted-foreground">Gerado pela IA • 2min 30s</p>
+                  <div className="font-medium">Resumo Semanal - Setembro 2024</div>
+                  <div className="text-sm text-muted-foreground">
+                    Baseado em {mockInsights.length} insights • Gerado em 18 Set 2024 • 3:45 min
+                  </div>
                 </div>
-                <Button className="bg-gradient-primary">
-                  <Volume2 className="w-4 h-4 mr-2" />
+                <Button size="sm">
+                  <Play className="w-4 h-4 mr-2" />
                   Reproduzir
                 </Button>
               </div>
               
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <p>
-                  <strong>Resumo:</strong> Este mês você demonstrou excelente controle financeiro, 
-                  poupando 45.8% da sua renda e mantendo gastos dentro do orçamento planejado.
-                </p>
-                <p>
-                  <strong>Destaque:</strong> Investimento de R$ 1.000 em CDB mostra comprometimento 
-                  com objetivos de longo prazo.
-                </p>
-                <p>
-                  <strong>Atenção:</strong> Gastos com alimentação ligeiramente acima da média. 
-                  Considere planejar refeições semanais.
-                </p>
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                <div>
+                  <div className="font-medium">Resumo Semanal - Agosto 2024</div>
+                  <div className="text-sm text-muted-foreground">Baseado em 5 insights • Gerado em 8 Set 2024 • 4:12 min</div>
+                </div>
+                <Button size="sm">
+                  <Play className="w-4 h-4 mr-2" />
+                  Reproduzir
+                </Button>
               </div>
             </div>
           </CardContent>
