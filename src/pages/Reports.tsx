@@ -1,38 +1,42 @@
 import { Layout } from '@/components/Layout';
 import { FinancialCard } from '@/components/FinancialCard';
 import { InsightCard } from '@/components/InsightCard';
+import { OwnerSelector } from '@/components/OwnerSelector';
+import { AIInsights } from '@/components/AIInsights';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { mockSummary, mockTransactions, mockInsights, formatCurrency } from '@/lib/mockData';
+import { useGoogleSheetsData } from '@/hooks/useGoogleSheetsData';
+import { formatCurrency } from '@/lib/mockData';
 import { FileText, Download, Calendar, TrendingUp, Target, Volume2, Share, Brain, Sparkles, Play } from 'lucide-react';
 
 const Reports = () => {
-  const monthlyGoals = [
-    { category: 'Alimentação', budgeted: 500, spent: 344.08, percentage: 68.8 },
-    { category: 'Transporte', budgeted: 200, spent: 89.50, percentage: 44.8 },
-    { category: 'Entretenimento', budgeted: 150, spent: 29.90, percentage: 19.9 },
-    { category: 'Saúde', budgeted: 100, spent: 45.60, percentage: 45.6 },
-  ];
+  const {
+    selectedOwner,
+    setSelectedOwner,
+    isLoading,
+    fetchAllData,
+    getSelectedOwnerData,
+    getSelectedOwnerMetrics,
+    owners
+  } = useGoogleSheetsData();
 
-  const insights = [
-    {
-      type: 'success',
-      title: 'Meta de poupança atingida!',
-      description: 'Você conseguiu poupar 45.8% da renda este mês, superando a meta de 20%.',
-    },
-    {
-      type: 'warning',
-      title: 'Gastos com alimentação acima da média',
-      description: 'Seus gastos com alimentação estão 15% acima do mês anterior.',
-    },
-    {
-      type: 'info',
-      title: 'Oportunidade de investimento',
-      description: 'Com o saldo atual, considere diversificar seus investimentos.',
-    },
-  ];
+  const ownerData = getSelectedOwnerData();
+  const ownerMetrics = getSelectedOwnerMetrics();
+
+  const monthlyGoals = ownerMetrics ? ownerMetrics.topCategories.map(cat => ({
+    category: cat.category,
+    budgeted: cat.amount * 1.2, // Simular orçamento 20% maior
+    spent: cat.amount,
+    percentage: Math.min((cat.amount / (cat.amount * 1.2)) * 100, 100)
+  })) : [];
+
+  const insights = ownerData?.insights.slice(0, 3).map(insight => ({
+    type: insight.priority === 'high' ? 'warning' : insight.priority === 'medium' ? 'info' : 'success',
+    title: insight.title,
+    description: insight.insight,
+  })) || [];
 
   return (
     <Layout>
@@ -91,30 +95,22 @@ const Reports = () => {
           />
         </div>
 
-        {/* AI Insights Section */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Brain className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-foreground">Insights da IA</h2>
-                <p className="text-muted-foreground">Análises inteligentes baseadas nos seus dados financeiros</p>
-              </div>
-            </div>
-            <Button variant="outline">
-              <Sparkles className="w-4 h-4 mr-2" />
-              Gerar Novos Insights
-            </Button>
-          </div>
+        {/* Owner Selector */}
+        <OwnerSelector
+          owners={owners}
+          selectedOwner={selectedOwner}
+          onOwnerChange={setSelectedOwner}
+          onRefresh={fetchAllData}
+          isLoading={isLoading}
+        />
 
-          <div className="grid gap-6">
-            {mockInsights.map((insight) => (
-              <InsightCard key={insight.insight_id} insight={insight} />
-            ))}
-          </div>
-        </div>
+        {/* AI Insights Section */}
+        {ownerData && (
+          <AIInsights 
+            insights={ownerData.insights}
+            isLoading={isLoading}
+          />
+        )}
 
         {/* Budget Goals */}
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">

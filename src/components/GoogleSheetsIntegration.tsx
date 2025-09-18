@@ -3,14 +3,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { DataStatus } from '@/components/DataStatus';
 import { useToast } from '@/hooks/use-toast';
-import { FileSpreadsheet, Download, Upload, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
+import { useGoogleSheetsData } from '@/hooks/useGoogleSheetsData';
+import { FileSpreadsheet, Download, Upload, RefreshCw, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 
 export const GoogleSheetsIntegration = () => {
-  const [sheetUrl, setSheetUrl] = useState('');
-  const [isConnected, setIsConnected] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [sheetUrl, setSheetUrl] = useState('https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=sharing');
+  const [isConnected, setIsConnected] = useState(true);
   const { toast } = useToast();
+  const { 
+    data, 
+    isLoading, 
+    error, 
+    apiKeyValid,
+    fetchAllData,
+    owners 
+  } = useGoogleSheetsData();
+
+  // Verificar se está usando dados mockados
+  const isUsingMockData = apiKeyValid === false;
 
   const handleConnect = async () => {
     if (!sheetUrl) {
@@ -22,12 +34,8 @@ export const GoogleSheetsIntegration = () => {
       return;
     }
 
-    setIsLoading(true);
-    
     try {
-      // Simula conexão com Google Sheets
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await fetchAllData();
       setIsConnected(true);
       toast({
         title: "Conectado com sucesso!",
@@ -39,21 +47,15 @@ export const GoogleSheetsIntegration = () => {
         description: "Não foi possível conectar com o Google Sheets. Verifique a URL e tente novamente.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleSync = async () => {
-    setIsLoading(true);
-    
     try {
-      // Simula sincronização
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await fetchAllData();
       toast({
         title: "Dados sincronizados",
-        description: "Seus dados financeiros foram atualizados na planilha",
+        description: "Seus dados financeiros foram atualizados da planilha",
       });
     } catch (error) {
       toast({
@@ -61,23 +63,19 @@ export const GoogleSheetsIntegration = () => {
         description: "Não foi possível sincronizar os dados. Tente novamente.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleExport = async () => {
-    setIsLoading(true);
-    
     try {
-      // Simula exportação
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Cria um blob com dados simulados
-      const csvContent = `Data,Descrição,Valor,Categoria
-2024-09-18,Salário,5000.00,Renda
-2024-09-17,Supermercado,-256.78,Alimentação
-2024-09-16,Combustível,-89.50,Transporte`;
+      // Criar CSV com dados reais
+      const csvContent = [
+        'Data,Descrição,Valor,Categoria,Usuário',
+        ...data.transactions.map(t => {
+          const person = data.people.find(p => p.link_id === t.link_id);
+          return `${t.value_date},${t.description},${t.amount},${t.category},${person?.person_alias || 'N/A'}`;
+        })
+      ].join('\n');
       
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
@@ -95,8 +93,6 @@ export const GoogleSheetsIntegration = () => {
         description: "Não foi possível exportar os dados.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -184,9 +180,23 @@ export const GoogleSheetsIntegration = () => {
             </div>
 
             <div className="text-xs text-muted-foreground space-y-1">
-              <div>• Última sincronização: 18 Set 2024, 10:30</div>
-              <div>• Próxima sincronização: Automática a cada hora</div>
-              <div>• Status: <span className="text-success">Ativo</span></div>
+              <div>• Última sincronização: {new Date().toLocaleString('pt-BR')}</div>
+              <div>• {owners.length} usuários • {data.transactions.length} transações • {data.insights.length} insights</div>
+              <div>• Status: <span className={isUsingMockData ? "text-orange-600" : "text-success"}>
+                {isUsingMockData ? 'Demonstração' : 'Ativo'}
+              </span></div>
+            </div>
+
+            <div className="mt-3 pt-3 border-t border-border">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(sheetUrl, '_blank')}
+                className="w-full"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Abrir Planilha no Google Sheets
+              </Button>
             </div>
           </div>
         )}

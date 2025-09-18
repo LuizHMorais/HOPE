@@ -1,0 +1,1536 @@
+{
+  "name": "Etapa1AiFactoryV5.2 - Tratamento de Dados",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1957763284,
+          "mode": "list",
+          "cachedResultName": "SyncState",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=1957763284"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "last_synced_to": "={{ $json.last_synced_to }}",
+            "updated_at": "={{ $json.updated_at }}",
+            "link_id ": "={{ $json.link_id }}"
+          },
+          "matchingColumns": [
+            "link_id "
+          ],
+          "schema": [
+            {
+              "id": "link_id ",
+              "displayName": "link_id ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_synced_to",
+              "displayName": "last_synced_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1408,
+        -64
+      ],
+      "name": "SyncState (Upsert)",
+      "id": "15d5f827-e8fd-4fe1-a9e4-210e6f39921f",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json || {});\nconst nowIso = new Date().toISOString();\nconst syncRows = rows.filter(r => r.kind === 'sync' && r.link_id && r.date_to);\nif (syncRows.length === 0) {\n  return [{ json: { info: 'Nada a salvar em SyncState' } }];\n}\nconst map = new Map();\nfor (const r of syncRows) {\n  map.set(r.link_id, { link_id: r.link_id, last_synced_to: r.date_to, updated_at: nowIso });\n}\nreturn Array.from(map.values()).map(x => ({ json: x }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        -48
+      ],
+      "name": "Prepare SyncState Save",
+      "id": "00aaccf1-bdab-4861-b0ef-207b02abaa46"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1008,
+        -64
+      ],
+      "name": "Merge Success + SyncPayload",
+      "id": "d66c838c-e974-4d3c-89d8-a1f55bdb03ba"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $items(\"Build Incremental Dates\");"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        -64
+      ],
+      "name": "Carry Sync Payload",
+      "id": "83126bd5-d635-425c-bb46-ce7c3cf324bd"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i=>i.json||{});\nconst now = new Date().toISOString();\nreturn [{ json: { status:'success', message:'Dados sincronizados com sucesso', timestamp: now, metrics: rows[0]||{} } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        -64
+      ],
+      "name": "Success Log",
+      "id": "99fca5d7-146d-4200-9f96-e93b006d6963"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Dashboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "load_date": "={{ $json.load_date }}",
+            "link_id": "={{ $json.link_id }}",
+            "total_accounts": "={{ $json.total_accounts }}",
+            "total_balance": "={{ $json.total_balance }}",
+            "gasto_mes_atual": "={{ $json.gasto_mes_atual }}",
+            "gasto_mes_anterior": "={{ $json.gasto_mes_anterior }}",
+            "variacao_percentual": "={{ $json.variacao_percentual }}",
+            "categoria_top": "={{ $json.categoria_top }}",
+            "maior_transacao": "={{ $json.maior_transacao }}",
+            "alerta": "={{ $json.alerta }}",
+            "processed_at": "={{ $json.processed_at }}",
+            "accounts_count": "={{ $json.accounts_count }}",
+            "transactions_count": "={{ $json.transactions_count }}"
+          },
+          "matchingColumns": [
+            "link_id"
+          ],
+          "schema": [
+            {
+              "id": "load_date",
+              "displayName": "load_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "link_id",
+              "displayName": "link_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_accounts",
+              "displayName": "total_accounts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_balance",
+              "displayName": "total_balance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gasto_mes_atual",
+              "displayName": "gasto_mes_atual",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gasto_mes_anterior",
+              "displayName": "gasto_mes_anterior",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "variacao_percentual",
+              "displayName": "variacao_percentual",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "categoria_top",
+              "displayName": "categoria_top",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "maior_transacao",
+              "displayName": "maior_transacao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alerta",
+              "displayName": "alerta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processed_at",
+              "displayName": "processed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "accounts_count",
+              "displayName": "accounts_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "transactions_count",
+              "displayName": "transactions_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        -80
+      ],
+      "name": "Save Dashboard",
+      "id": "3c8c0446-f210-4996-a015-1e824f00f001",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// === Dashboard por OWNER (link_id) ===\n// Espera receber do Merge: itens de Accounts (com link_id) e Transactions (com link_id)\n\nconst rows = $input.all().map(i => i.json || {});\n\n// Helpers\nconst toNumber = (v) => {\n  if (v === null || v === undefined) return 0;\n  if (typeof v === 'number') return Number.isFinite(v) ? v : 0;\n  const s = String(v).replace(/\\./g, '').replace(',', '.');\n  const n = Number(s);\n  return Number.isFinite(n) ? n : 0;\n};\n\nconst parseDate = (s) => {\n  if (!s) return null;\n  const dt = new Date(s);\n  return Number.isNaN(dt.getTime()) ? null : dt;\n};\n\nconst isSameMonth = (dt, yy, mm) => dt && dt.getUTCFullYear() === yy && dt.getUTCMonth() === mm;\n\nconst load_date = (() => {\n  const cand = rows.find(r => typeof r.load_date === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(r.load_date));\n  return cand ? cand.load_date : new Date().toISOString().slice(0,10);\n})();\n\n// separa\nconst accItems = [];\nconst txItems  = [];\nfor (const r of rows) {\n  const looksAccount =\n    r.src === 'accounts' ||\n    r.account_day_key !== undefined ||\n    r.balance_current !== undefined ||\n    (r.balance && r.balance.current !== undefined);\n  const looksTx =\n    r.src === 'transactions' ||\n    (r.id !== undefined && (r.amount !== undefined || r.type !== undefined || r.value_date !== undefined));\n\n  if (looksAccount) accItems.push(r);\n  else if (looksTx) txItems.push(r);\n}\n\n// dedup\nconst seenAcc = new Set(); const accountsUniq = [];\nfor (const a of accItems) {\n  const key = a.account_id || a.id || '';\n  if (!key || seenAcc.has(key)) continue;\n  seenAcc.add(key); accountsUniq.push(a);\n}\nconst seenTx = new Set(); const transactionsUniq = [];\nfor (const t of txItems) {\n  const key = t.id || '';\n  if (!key || seenTx.has(key)) continue;\n  seenTx.add(key); transactionsUniq.push(t);\n}\n\n// agrupar por owner\nconst byOwner = new Map();\n\nconst getBalance = (a) => {\n  if ((a.balance_type || '').toUpperCase() === 'LIABILITY') return 0;\n  const val =\n    (a.balance_current !== undefined) ? toNumber(a.balance_current) :\n    (a.balance && a.balance.current !== undefined) ? toNumber(a.balance.current) :\n    (a.funds_total !== undefined) ? toNumber(a.funds_total) :\n    (a.balance_available !== undefined) ? toNumber(a.balance_available) :\n    (a.balance && a.balance.available !== undefined) ? toNumber(a.balance.available) :\n    0;\n  return val;\n};\n\n// index\nfor (const a of accountsUniq) {\n  const link = a.link_id || '';\n  if (!link) continue;\n  const b = byOwner.get(link) || { accounts: [], txs: [] };\n  b.accounts.push(a);\n  byOwner.set(link, b);\n}\nfor (const t of transactionsUniq) {\n  const link = t.link_id || '';\n  if (!link) continue;\n  const b = byOwner.get(link) || { accounts: [], txs: [] };\n  b.txs.push(t);\n  byOwner.set(link, b);\n}\n\n// meses de referência\nconst today = new Date();\nconst y = today.getUTCFullYear();\nconst m = today.getUTCMonth();\nconst prev = new Date(Date.UTC(y, m - 1, 1));\nconst py = prev.getUTCFullYear();\nconst pm = prev.getUTCMonth();\n\nconst results = [];\n\nfor (const [link_id, bucket] of byOwner.entries()) {\n  const accs = bucket.accounts || [];\n  const txs  = bucket.txs || [];\n\n  const total_accounts = accs.length;\n  const total_balance  = accs.reduce((s, a) => s + getBalance(a), 0);\n\n  const outflowCurrent = txs.filter(t => t.type === 'OUTFLOW' && isSameMonth(parseDate(t.value_date), y, m));\n  const outflowPrev    = txs.filter(t => t.type === 'OUTFLOW' && isSameMonth(parseDate(t.value_date), py, pm));\n\n  const sum = arr => arr.reduce((s,t)=> s + toNumber(t.amount), 0);\n  const gasto_mes_atual = sum(outflowCurrent);\n  const gasto_mes_anterior = sum(outflowPrev);\n\n  const variacao_percentual = gasto_mes_anterior > 0\n    ? ((gasto_mes_atual - gasto_mes_anterior) / gasto_mes_anterior) * 100\n    : 0;\n\n  const catTotals = {};\n  for (const t of outflowCurrent) {\n    const k = (t.category || 'Uncategorized');\n    catTotals[k] = (catTotals[k] || 0) + toNumber(t.amount);\n  }\n  let categoria_top = ''; let maxVal = 0;\n  for (const [k,v] of Object.entries(catTotals)) {\n    if (v > maxVal) { maxVal = v; categoria_top = k; }\n  }\n  const maior_transacao = outflowCurrent.reduce((mx, t) => Math.max(mx, toNumber(t.amount)), 0);\n\n  let alerta = '✅ Dentro da média';\n  if (variacao_percentual > 20) alerta = '⚠️ Gastos aumentando significativamente';\n  else if (variacao_percentual > 10) alerta = '⚠️ Gastos aumentando';\n  else if (variacao_percentual < -20) alerta = '✅ Excelente redução de gastos';\n  else if (variacao_percentual < -10) alerta = '✅ Boa redução de gastos';\n\n  results.push({\n    json: {\n      load_date,\n      link_id, // chave do owner\n      total_accounts,\n      total_balance: Number(total_balance.toFixed(2)),\n      gasto_mes_atual: Number(gasto_mes_atual.toFixed(2)),\n      gasto_mes_anterior: Number(gasto_mes_anterior.toFixed(2)),\n      variacao_percentual: Number(variacao_percentual.toFixed(2)),\n      categoria_top,\n      maior_transacao: Number(maior_transacao.toFixed(2)),\n      alerta,\n      processed_at: new Date().toISOString(),\n      accounts_count: total_accounts,\n      transactions_count: txs.length\n    }\n  });\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "name": "Calculate Dashboard",
+      "id": "8262e4eb-2617-4d72-b563-d9813a8af11e"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        304,
+        64
+      ],
+      "name": "Merge for Dashboard",
+      "id": "6ff29710-fd26-4624-a726-e193f7983d9a"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 314354577,
+          "mode": "list",
+          "cachedResultName": "Transactions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=314354577"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "link_id": "={{ $json.link_id }}",
+            "account_id": "={{ $json.account_id }}",
+            "account_number": "={{ $json.account_number }}",
+            "account_name": "={{ $json.account_name }}",
+            "type": "={{ $json.type }}",
+            "amount": "={{ $json.amount }}",
+            "currency": "={{ $json.currency }}",
+            "value_date": "={{ $json.value_date }}",
+            "description": "={{ $json.description }}",
+            "category": "={{ $json.category }}",
+            "status": "={{ $json.status }}",
+            "src": "={{ $json.src }}",
+            "institution_name": "{{ $json.institution_name }}",
+            "merchant_name": "{{ $json.merchant_name }}",
+            "merchant_site": "{{ $json.merchant_site }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "link_id",
+              "displayName": "link_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_number",
+              "displayName": "account_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_name",
+              "displayName": "account_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "institution_name",
+              "displayName": "institution_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "currency",
+              "displayName": "currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "value_date",
+              "displayName": "value_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "merchant_name",
+              "displayName": "merchant_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "merchant_site",
+              "displayName": "merchant_site",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "src",
+              "displayName": "src",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -48,
+        -16
+      ],
+      "name": "Save Transactions",
+      "id": "eaee40c4-1655-41fc-b79f-fd43fd484029",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Transactions — sem pareamento; usa tx.account.link\n\nconst toNumber = (v) => {\n  if (v === null || v === undefined) return 0;\n  if (typeof v === 'number') return Number.isFinite(v) ? v : 0;\n  const s = String(v).replace(/\\./g, '').replace(',', '.');\n  const n = Number(s);\n  return Number.isFinite(n) ? n : 0;\n};\n\nconst outputs = [];\nconst inputs = $input.all().map(i => i.json || {});\n\n// “Flatten” dos formatos possíveis (results[], array ou objeto único)\nconst txs = [];\nfor (const payload of inputs) {\n  if (!payload) continue;\n  if (Array.isArray(payload.results)) txs.push(...payload.results);\n  else if (Array.isArray(payload))     txs.push(...payload.filter(t => t && t.id));\n  else if (payload && payload.id)      txs.push(payload);\n}\n\n// Normalização\nfor (const tx of txs) {\n  const acc = tx.account || {};\n  const link_id = acc.link || \"\"; // <- pega direto do objeto\n\n  outputs.push({\n    json: {\n      id: tx.id,\n      link_id,\n      account_id: acc.id || \"\",\n      account_number: acc.number || \"\",\n      account_name: acc.name || \"\",\n      institution_name: acc.institution?.name || \"\",\n      type: tx.type || \"\",\n      amount: toNumber(tx.amount),\n      currency: tx.currency || \"BRL\",\n      value_date: tx.value_date || \"\",\n      description: tx.description || \"\",\n      category: tx.category || tx.subcategory || \"Uncategorized\",\n      merchant_name: tx.merchant?.name || \"\",\n      merchant_site: tx.merchant?.website || \"\",\n      status: tx.status || \"\",\n      src: \"transactions\",\n    }\n  });\n}\n\n// De-dup por id\nconst seen = new Set();\nconst dedup = [];\nfor (const it of outputs) {\n  const key = it.json.id || \"\";\n  if (!key || seen.has(key)) continue;\n  seen.add(key);\n  dedup.push(it);\n}\nreturn dedup;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        80
+      ],
+      "name": "Process Transactions",
+      "id": "e036d46d-f8c0-4d2d-8580-4fcb7c68fcc1"
+    },
+    {
+      "parameters": {
+        "url": "https://sandbox.belvo.com/api/transactions/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "link",
+              "value": "={{ $json.link_id }}"
+            },
+            {
+              "name": "date_from",
+              "value": "={{ $json.date_from }}"
+            },
+            {
+              "name": "date_to",
+              "value": "={{ $json.date_to }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -448,
+        80
+      ],
+      "name": "Belvo – Get Transactions",
+      "id": "7a09c3a8-a300-4b2a-a823-ed71583c0584",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "bNSScqtSOZynAB4l",
+          "name": "Belvo Sandbox Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 963809764,
+          "mode": "list",
+          "cachedResultName": "Accounts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=963809764"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "account_day_key": "={{ $json.account_day_key }}",
+            "account_id": "={{ $json.account_id }}",
+            "link_id": "={{ $json.link_id }}",
+            "institution_name": "={{ $json.institution_name }}",
+            "institution_type": "={{ $json.institution_type }}",
+            "account_name": "={{ $json.account_name }}",
+            "account_number": "={{ $json.account_number }}",
+            "currency": "={{ $json.currency }}",
+            "balance_current": "={{ $json.balance_current }}",
+            "balance_available": "={{ $json.balance_available }}",
+            "funds_total": "={{ $json.funds_total }}",
+            "liability_outstanding": "={{ $json.liability_outstanding }}",
+            "balance_type": "={{ $json.balance_type }}",
+            "last_updated": "={{ $json.last_updated }}",
+            "load_date": "={{ $json.load_date }}",
+            "src": "={{ $json.src }}"
+          },
+          "matchingColumns": [
+            "account_day_key"
+          ],
+          "schema": [
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "link_id",
+              "displayName": "link_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "institution_name",
+              "displayName": "institution_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "institution_type",
+              "displayName": "institution_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_name",
+              "displayName": "account_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_number",
+              "displayName": "account_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "currency",
+              "displayName": "currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "balance_current",
+              "displayName": "balance_current",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "balance_available",
+              "displayName": "balance_available",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "funds_total",
+              "displayName": "funds_total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "liability_outstanding",
+              "displayName": "liability_outstanding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "balance_type",
+              "displayName": "balance_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_updated",
+              "displayName": "last_updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "load_date",
+              "displayName": "load_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_day_key",
+              "displayName": "account_day_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "src",
+              "displayName": "src",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -96,
+        -320
+      ],
+      "name": "Save Accounts",
+      "id": "884d00f3-c212-42a3-9623-eda717392720",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Accounts — sem pareamento; usa link do próprio objeto Belvo\n\nconst load_date = new Date().toISOString().slice(0,10);\n\n// helpers\nconst toNumber = (v) => {\n  if (v === null || v === undefined) return 0;\n  if (typeof v === 'number') return Number.isFinite(v) ? v : 0;\n  const s = String(v).replace(/\\./g, '').replace(',', '.');\n  const n = Number(s);\n  return Number.isFinite(n) ? n : 0;\n};\n\nconst outputs = [];\nconst inputs = $input.all().map(i => i.json || {});\n\n// “Flatten” dos formatos possíveis (results[], array ou objeto único)\nconst accounts = [];\nfor (const payload of inputs) {\n  if (!payload) continue;\n  if (Array.isArray(payload.results)) accounts.push(...payload.results);\n  else if (Array.isArray(payload))     accounts.push(...payload);\n  else if (payload && (payload.id || payload.institution || payload.balance)) accounts.push(payload);\n}\n\n// Normalização\nfor (const acc of accounts) {\n  if (!acc || !acc.id) continue;\n\n  const account_id = acc.id;\n  const link_id    = acc.link || \"\"; // <- pega direto da Belvo\n\n  let current   = toNumber(acc.balance?.current   ?? acc.balance_current   ?? acc.current   ?? 0);\n  let available = toNumber(acc.balance?.available ?? acc.balance_available ?? acc.available ?? current);\n\n  // Fundos/pensão podem estar em funds_data\n  let funds_total = 0;\n  if ((current === 0 || !Number.isFinite(current)) && Array.isArray(acc.funds_data) && acc.funds_data.length > 0) {\n    funds_total = acc.funds_data.reduce((s, f) => s + toNumber(f?.balance), 0);\n    if (funds_total > 0) { current = funds_total; available = funds_total; }\n  }\n\n  let liability_outstanding = 0;\n  if (acc.loan_data?.outstanding_balance != null) {\n    liability_outstanding = toNumber(acc.loan_data.outstanding_balance);\n  }\n\n  const balance_type = (acc.balance_type || (acc.category && String(acc.category).includes('LOAN') ? 'LIABILITY' : 'ASSET')).toUpperCase();\n\n  outputs.push({\n    json: {\n      account_id,\n      link_id,\n      institution_name: acc.institution?.name || \"\",\n      institution_type: acc.institution?.type || \"\",\n      account_name: acc.name || \"\",\n      account_number: acc.number || \"\",\n      currency: acc.currency || \"BRL\",\n      balance_current: current,\n      balance_available: available,\n      funds_total,\n      liability_outstanding,\n      balance_type,\n      last_updated: acc.last_accessed_at || acc.collected_at || acc.created_at || \"\",\n      load_date,\n      account_day_key: `${account_id}_${load_date}`,\n      src: \"accounts\",\n    }\n  });\n}\n\n// De-dup por account_id\nconst seen = new Set();\nconst dedup = [];\nfor (const it of outputs) {\n  const key = it.json.account_id || \"\";\n  if (!key || seen.has(key)) continue;\n  seen.add(key);\n  dedup.push(it);\n}\nreturn dedup;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        -256
+      ],
+      "name": "Process Accounts",
+      "id": "44208394-f1a7-4a56-a386-cdb2283d2045"
+    },
+    {
+      "parameters": {
+        "url": "https://sandbox.belvo.com/api/accounts/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "link",
+              "value": "={{ $json.link_id }}"
+            },
+            {
+              "name": "page_size",
+              "value": "1000"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "identity"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          },
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -448,
+        -256
+      ],
+      "name": "Get Accounts (by Owner)",
+      "id": "67abfed0-dfc9-4069-808c-8b1f64ea3241",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "bNSScqtSOZynAB4l",
+          "name": "Belvo Sandbox Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build Incremental Dates — janela por link_id usando SyncState (overlap 5d)\nconst items = $input.all().map(i => i.json || {});\nconst today = new Date();\nconst yyyy = today.getUTCFullYear();\nconst mm = String(today.getUTCMonth() + 1).padStart(2, '0');\nconst dd = String(today.getUTCDate()).padStart(2, '0');\nconst date_to = `${yyyy}-${mm}-${dd}`;\nconst OVERLAP_DAYS = 5;\nconst MAX_LOOKBACK_DAYS = 90;\nconst toDate = (s) => { if (!s) return null; const d = new Date(s); return Number.isNaN(d.getTime()) ? null : d; };\nconst fmt = (d) => `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;\nconst addDays = (d, n) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()+n));\nconst owners = [], syncRows = [];\nfor (const r of items) {\n  const ownerLike = !!r.link_id && (r.src === 'owners' || r.person_alias || r.owner_id);\n  const syncLike  = !!r.link_id && (r.last_synced_to !== undefined);\n  if (ownerLike && !syncLike) owners.push(r);\n  else if (syncLike) syncRows.push(r);\n}\nconst syncMap = new Map();\nfor (const row of syncRows) {\n  const dt = toDate(row.last_synced_to);\n  if (row.link_id && dt) syncMap.set(row.link_id, dt);\n}\nconst lookbackBase = addDays(today, -MAX_LOOKBACK_DAYS);\nconst out = [];\nfor (const o of owners) {\n  const link_id = o.link_id;\n  if (!link_id) continue;\n  const prev = syncMap.get(link_id);\n  let baseFrom = prev ? addDays(prev, -OVERLAP_DAYS) : lookbackBase;\n  if (baseFrom < lookbackBase) baseFrom = lookbackBase;\n  if (baseFrom > today) baseFrom = today;\n  const date_from = fmt(baseFrom);\n  out.push({ json: { link_id, date_from, date_to, load_date: date_to, kind: 'sync' } });\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -656,
+        -64
+      ],
+      "name": "Build Incremental Dates",
+      "id": "adf8319c-69e4-46bc-a283-fa3d42b869b8"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -880,
+        -64
+      ],
+      "name": "Merge Owners + SyncState",
+      "id": "f46455fc-2f81-4b95-96b4-2f12662d1079"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out=[];\nfor (const it of $input.all()) {\n  const j = it.json || {};\n  if (j.link_id || j.last_synced_to) {\n    out.push({ json: { link_id: j.link_id || '', last_synced_to: j.last_synced_to || '' } });\n    continue;\n  }\n  const values = j.values || j.data || j.rows;\n  if (Array.isArray(values)) {\n    const [header, ...rows] = values;\n    if (Array.isArray(header)) {\n      const idxLink = header.findIndex(h=>String(h).toLowerCase()==='link_id');\n      const idxTo = header.findIndex(h=>String(h).toLowerCase()==='last_synced_to');\n      for (const r of rows) {\n        if (!Array.isArray(r)) continue;\n        out.push({ json: { link_id: r[idxLink] || '', last_synced_to: r[idxTo] || '' } });\n      }\n    }\n  }\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1408,
+        112
+      ],
+      "name": "Normalize SyncState",
+      "id": "4b4469c2-e8ab-41a7-8ddd-822e0a4c9a7f"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1957763284,
+          "mode": "list",
+          "cachedResultName": "SyncState",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=1957763284"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1600,
+        112
+      ],
+      "name": "SyncState (Read)",
+      "id": "2380516f-ab98-460c-bc13-6358cab6bfc9",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 250762612,
+          "mode": "list",
+          "cachedResultName": "People",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=250762612"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "link_id": "={{ $json.link_id }}",
+            "created_at": "={{ $json.created_at }}",
+            "collected_at": "={{ $json.collected_at }}",
+            "src": "={{ $json.src }}",
+            "owner_id": "={{ $json.owner_id }}",
+            "owner_ids_all": "={{ $json.owner_ids_all }}",
+            "person_alias": "={{ $json.person_alias }}",
+            "first_name": "={{ $json.first_name }}",
+            "last_name": "={{ $json.last_name }}",
+            "email": "={{ $json.email }}",
+            "phone": "={{ $json.phone }}",
+            "document_type": "={{ $json.document_type }}",
+            "document_number": "={{ $json.document_number }}",
+            "address": "={{ $json.address }}",
+            "internal_identification": "={{ $json.internal_identification }}",
+            "business_name": "={{ $json.business_name }}",
+            "load_date": "={{ $json.load_date }}"
+          },
+          "matchingColumns": [
+            "link_id"
+          ],
+          "schema": [
+            {
+              "id": "link_id",
+              "displayName": "link_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "owner_id",
+              "displayName": "owner_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "owner_ids_all",
+              "displayName": "owner_ids_all",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "person_alias",
+              "displayName": "person_alias",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "document_type",
+              "displayName": "document_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "document_number",
+              "displayName": "document_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "collected_at",
+              "displayName": "collected_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "internal_identification",
+              "displayName": "internal_identification",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "business_name",
+              "displayName": "business_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "load_date",
+              "displayName": "load_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "src",
+              "displayName": "src",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1008,
+        -336
+      ],
+      "name": "Save Owners (People)",
+      "id": "175189f5-4590-4b69-a99a-552495c17e83",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Owners — canônico por link_id (evita duplicar \"pessoas\" para o mesmo link)\n\nconst items = $input.all().map(i => i.json || {});\nconst toStr = v => (v == null ? \"\" : String(v));\nconst today = new Date().toISOString().slice(0,10);\n\n// 1) Flatten: aceitar results[], array ou objeto único\nconst owners = [];\nfor (const o of items) {\n  if (!o) continue;\n  if (Array.isArray(o.results)) owners.push(...o.results);\n  else if (Array.isArray(o))     owners.push(...o);\n  else if (o.id && o.link)       owners.push(o);\n}\n\n// 2) Agrupar por link_id\nconst byLink = new Map();\nfor (const o of owners) {\n  const link = toStr(o.link);\n  if (!link) continue;\n  const arr = byLink.get(link) || [];\n  arr.push(o);\n  byLink.set(link, arr);\n}\n\n// 3) Escolher owner canônico por link\nfunction pickCanonical(arr) {\n  if (arr.length === 1) return arr[0];\n\n  // Ordena por data de coleta (desc), se empatar usa created_at (desc)\n  const parse = (s) => {\n    const d = s ? new Date(s) : null;\n    return d && !Number.isNaN(d.getTime()) ? d.getTime() : -1;\n  };\n\n  const sorted = arr.slice().sort((a, b) => {\n    const ca = parse(a.collected_at), cb = parse(b.collected_at);\n    if (cb !== ca) return cb - ca;\n    const ra = parse(a.created_at), rb = parse(b.created_at);\n    return rb - ra;\n  });\n\n  return sorted[0];\n}\n\nconst output = [];\n\nfor (const [link_id, group] of byLink.entries()) {\n  const canonical = pickCanonical(group);\n\n  const owner_ids_all = group.map(g => toStr(g.id)).join(',');\n  const first    = toStr(canonical.first_name);\n  const last     = toStr(canonical.last_name || canonical.second_last_name);\n  const alias    = toStr(canonical.display_name) || `${first} ${last}`.trim();\n\n  output.push({\n    json: {\n      // chave da linha\n      link_id,\n\n      // dados \"representativos\" do dono\n      owner_id: toStr(canonical.id),\n      owner_ids_all, // para auditoria\n      person_alias: alias,\n      first_name: first,\n      last_name: last,\n      email: toStr(canonical.email),\n      phone: toStr(canonical.phone_number),\n      document_type: toStr(canonical.document_id?.document_type),\n      document_number: toStr(canonical.document_id?.document_number),\n      address: toStr(canonical.address),\n      created_at: toStr(canonical.created_at),\n      collected_at: toStr(canonical.collected_at),\n      internal_identification: toStr(canonical.internal_identification),\n      business_name: toStr(canonical.business_name),\n\n      // metadados\n      load_date: today,\n      src: \"owners\"\n    }\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1232,
+        -288
+      ],
+      "name": "Process Owners",
+      "id": "c90b7d7b-1b9c-4c0c-bbd6-311c29a92a2f"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Explode Owners -> 1 item por owner (results[] ou objeto único)\nconst payload = $input.first()?.json || {};\nconst out = [];\n\nif (Array.isArray(payload.results)) {\n  for (const o of payload.results) {\n    out.push({ json: o });\n  }\n} else if (Array.isArray(payload)) {\n  for (const o of payload) if (o) out.push({ json: o });\n} else if (payload && payload.id && payload.link) {\n  out.push({ json: payload });\n}\nreturn out;        "
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1392,
+        -192
+      ],
+      "name": "Explode Owners",
+      "id": "37fb1be3-bf42-4b01-a409-08a3f06975d3"
+    },
+    {
+      "parameters": {
+        "url": "https://sandbox.belvo.com/api/owners/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page_size",
+              "value": "200"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1600,
+        -176
+      ],
+      "name": "Get Owners (All)",
+      "id": "b09b82e5-6cfe-49d0-a50e-ef40eaf92773",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "bNSScqtSOZynAB4l",
+          "name": "Belvo Sandbox Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Set Dynamic Dates — janela de 3 meses para trás (UTC)\nconst now = new Date(); // UTC base\nconst pad = (n) => String(n).padStart(2,'0');\n\n// date_to = hoje (UTC)\nconst yyyy = now.getUTCFullYear();\nconst mm = pad(now.getUTCMonth()+1);\nconst dd = pad(now.getUTCDate());\nconst date_to = `${yyyy}-${mm}-${dd}`;\n\n// date_from = hoje - 90 dias (~3 meses), robusto contra meses 28–31 dias\nconst back = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 90));\nconst yyyyF = back.getUTCFullYear();\nconst mmF = pad(back.getUTCMonth()+1);\nconst ddF = pad(back.getUTCDate());\nconst date_from = `${yyyyF}-${mmF}-${ddF}`;\n\n// load_date = igual ao date_to\nconst load_date = date_to;\n\nreturn [{ json: { load_date, date_from, date_to } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1760,
+        -16
+      ],
+      "name": "Set Dynamic Dates",
+      "id": "a456130e-e200-4d83-bd71-db783e4085e1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1952,
+        -16
+      ],
+      "id": "5176d3e3-0f64-41e6-ab3e-27a179c0c5d8",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Prepare SyncState Save": {
+      "main": [
+        [
+          {
+            "node": "SyncState (Upsert)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Success + SyncPayload": {
+      "main": [
+        [
+          {
+            "node": "Prepare SyncState Save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Carry Sync Payload": {
+      "main": [
+        [
+          {
+            "node": "Merge Success + SyncPayload",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Success Log": {
+      "main": [
+        [
+          {
+            "node": "Merge Success + SyncPayload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Dashboard": {
+      "main": [
+        [
+          {
+            "node": "Success Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Dashboard": {
+      "main": [
+        [
+          {
+            "node": "Save Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge for Dashboard": {
+      "main": [
+        [
+          {
+            "node": "Calculate Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Transactions": {
+      "main": [
+        [
+          {
+            "node": "Merge for Dashboard",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Save Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Belvo – Get Transactions": {
+      "main": [
+        [
+          {
+            "node": "Process Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Accounts": {
+      "main": [
+        [
+          {
+            "node": "Merge for Dashboard",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Accounts (by Owner)": {
+      "main": [
+        [
+          {
+            "node": "Process Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Incremental Dates": {
+      "main": [
+        [
+          {
+            "node": "Carry Sync Payload",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Belvo – Get Transactions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Accounts (by Owner)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Owners + SyncState": {
+      "main": [
+        [
+          {
+            "node": "Build Incremental Dates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize SyncState": {
+      "main": [
+        [
+          {
+            "node": "Merge Owners + SyncState",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "SyncState (Read)": {
+      "main": [
+        [
+          {
+            "node": "Normalize SyncState",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Owners": {
+      "main": [
+        [
+          {
+            "node": "Save Owners (People)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Owners + SyncState",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Explode Owners": {
+      "main": [
+        [
+          {
+            "node": "Process Owners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Owners (All)": {
+      "main": [
+        [
+          {
+            "node": "Explode Owners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Dynamic Dates": {
+      "main": [
+        [
+          {
+            "node": "SyncState (Read)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Owners (All)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Dynamic Dates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c61d7fe8-7332-478b-9cdf-c2927b119b9a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "97ee746f263d76b0d63206a311d80c1cb2bf5798526b9a58072b9fa593fd48a2"
+  },
+  "id": "WFYV5C6WA4ZQSwCF",
+  "tags": [
+    {
+      "createdAt": "2025-09-16T21:03:26.069Z",
+      "updatedAt": "2025-09-16T21:03:26.069Z",
+      "id": "QVCm8XSFVCIlMTX1",
+      "name": "LTS"
+    }
+  ]
+}

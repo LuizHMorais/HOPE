@@ -1,0 +1,690 @@
+{
+  "name": "Etapa1AiFactory - Fluxo IA",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        64
+      ],
+      "id": "5c3b2b01-934a-458e-9187-87d1552b13fc",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 314354577,
+          "mode": "list",
+          "cachedResultName": "Transactions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=314354577"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        576,
+        96
+      ],
+      "id": "8aba2351-a725-455d-9f54-145644b784b4",
+      "name": "Get Transactions",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 963809764,
+          "mode": "list",
+          "cachedResultName": "Accounts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=963809764"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "84e6266b-989b-4c98-af8a-601d67e513ce",
+      "name": "Get Accounts",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 250762612,
+          "mode": "list",
+          "cachedResultName": "People",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=250762612"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        -208
+      ],
+      "id": "f969c0bf-cbde-40f6-89f1-e5e941e997ec",
+      "name": "Get People",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Dashboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        624,
+        240
+      ],
+      "id": "ac2561f0-0e92-44ca-a3c7-3a0425d193bc",
+      "name": "Get Dashboard",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        960,
+        112
+      ],
+      "id": "85d44937-a1e7-470d-80aa-4012f5e77cc2",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        816,
+        -16
+      ],
+      "id": "f5ea3ee8-d1ce-44ea-922a-878dc49d765e",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        640,
+        -144
+      ],
+      "id": "1c543de7-4e21-4e58-9eb2-a57aead47759",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// === Helpers ===\nconst num = (v) => (isFinite(+v) ? +v : 0);\nconst toISO = (d) => d.toISOString().slice(0,10);\nconst parse = (s) => { const d = new Date(s); return isNaN(d) ? null : d; };\nconst inWindowMaker = (fromISO, toISO_) => (s) => {\n  const d = parse(s);\n  return d && d >= parse(fromISO) && d <= parse(toISO_);\n};\n\n// Safe fetch of items from a node by any of candidate names\nfunction safeItems(candidates) {\n  for (const name of candidates) {\n    try {\n      const arr = $items(name, 0, 0);\n      if (Array.isArray(arr)) return arr.map(i => i.json);\n    } catch (e) { /* ignore */ }\n  }\n  return [];\n}\n\n// === Resolve data range (3 months) without needing Set Params ===\nconst now = new Date();\nconst from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth()-3, now.getUTCDate()));\nconst DATE_TO = toISO(now);\nconst DATE_FROM = toISO(from);\nconst inWindow = inWindowMaker(DATE_FROM, DATE_TO);\n\n// === Read the 4 sources (tolerant names) ===\nconst PEOPLE = safeItems(['Get People','People','GET People','GetPeople']);\nconst ACCOUNTS = safeItems(['Get Accounts','Accounts','GET Accounts','GetAccounts']);\nconst TXS = safeItems(['Get Transactions','Transactions','GET Transactions','GetTransactions']);\nconst DASH = safeItems(['Get Dashboard','Dashboard','GET Dashboard','GetDashboard']);\n\n// If nothing came, fail early with a clear message\nif (!PEOPLE.length) {\n  return [{ json: { error: true, message: 'People vazio: confira o nome do nó (ex.: \"Get People\") e se ele executa antes deste Code node.' } }];\n}\n\n// --- Indexers ---\nconst accountsByLink = new Map();   // link_id -> [account]\nconst accountsByKey  = new Map();   // (link|account_number) -> account\n\nfor (const a of ACCOUNTS) {\n  const link = a.link_id || a.link || '';\n  if (!link) continue;\n  const accNumber = (a.account_number ?? a.number ?? '').toString();\n  const key = accNumber ? `${link}|${accNumber}` : null;\n\n  const accountObj = {\n    account_id: a.account_id || a.id || '',\n    account_name: a.account_name || a.name || '',\n    account_number: accNumber || '',\n    institution_name: a.institution_name || '',\n    institution_type: a.institution_type || '',\n    currency: a.currency || '',\n    balance_current: num(a.balance_current),\n    balance_available: num(a.balance_available),\n    funds_total: num(a.funds_total),\n    liability_outstanding: num(a.liability_outstanding),\n    balance_type: a.balance_type || '',\n    last_updated: a.last_updated || a.collected_at || a.created_at || ''\n  };\n\n  if (!accountsByLink.has(link)) accountsByLink.set(link, []);\n  accountsByLink.get(link).push(accountObj);\n  if (key) accountsByKey.set(key, accountObj);\n}\n\n// Transactions index: prefer account_id; fallback link+account_number\nconst txByAccount = new Map(); // account_id -> [tx]\nconst txByKey = new Map();     // (link|account_number) -> [tx]\n\nfor (const t of TXS) {\n  const link = t.link_id || t.link || '';\n  const accId = t.account_id || (t.account && (t.account.id || t.account.account_id)) || '';\n  const accNumber = (t.account_number ?? t.number ?? '').toString();\n  const key = (link && accNumber) ? `${link}|${accNumber}` : null;\n\n  const date = t.value_date || t.posted_date || t.date || t.booking_date || '';\n  if (!inWindow(date)) continue;\n\n  const txObj = {\n    transaction_id: t.transaction_id || t.id || '',\n    amount: num(t.amount),\n    currency: t.currency || '',\n    category: t.category || '',\n    description: t.description || t.concept || '',\n    value_date: date,\n    type: t.type || '',\n    status: t.status || ''\n  };\n\n  if (accId) {\n    if (!txByAccount.has(accId)) txByAccount.set(accId, []);\n    txByAccount.get(accId).push(txObj);\n  } else if (key) {\n    if (!txByKey.has(key)) txByKey.set(key, []);\n    txByKey.get(key).push(txObj);\n  }\n}\n\n// Dashboard 1:1\nconst dashByLink = new Map();\nfor (const d of DASH) {\n  const link = d.link_id || d.link || '';\n  if (!link) continue;\n  dashByLink.set(link, d);\n}\n\n// --- Build nested owners (max = PEOPLE length, ex.: 42) ---\nconst out = [];\n\nfor (const p of PEOPLE) {\n  const link = p.link_id || p.link || '';\n  if (!link) continue;\n\n  const ownerBase = {\n    link_id: link,\n    owner_id: p.owner_id || '',\n    person_alias: p.person_alias || p.display_name || '',\n    first_name: p.first_name || '',\n    last_name: p.last_name || '',\n    email: p.email || '',\n    phone: p.phone || '',\n    document_type: p.document_type || '',\n    document_number: p.document_number || '',\n    created_at: p.created_at || '',\n    collected_at: p.collected_at || '',\n    src: p.src || 'people',\n    window_from: DATE_FROM,\n    window_to: DATE_TO\n  };\n\n  const dashboard = dashByLink.get(link);\n  if (dashboard) ownerBase.dashboard = dashboard;\n\n  const ownerAccounts = (accountsByLink.get(link) || []).map(acc => {\n    let txList = (acc.account_id && txByAccount.get(acc.account_id)) || [];\n    if ((!txList || txList.length === 0) && acc.account_number) {\n      const k = `${link}|${acc.account_number}`;\n      txList = txByKey.get(k) || [];\n    }\n    txList.sort((a,b) => (b.value_date || '').localeCompare(a.value_date || ''));\n    return { ...acc, transactions: txList };\n  });\n\n  out.push({ json: { ...ownerBase, accounts: ownerAccounts } });\n}\n\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        112
+      ],
+      "id": "207bc8b3-2e57-4442-9809-69b0eb62ee32",
+      "name": "Build Nested Owners"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst yyyy = now.getUTCFullYear();\nconst mm = String(now.getUTCMonth()+1).padStart(2,'0');\nconst dd = String(now.getUTCDate()).padStart(2,'0');\nconst date_to = `${yyyy}-${mm}-${dd}`;\nconst from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth()-3, now.getUTCDate()));\nconst fyyyy = from.getUTCFullYear();\nconst fmm = String(from.getUTCMonth()+1).padStart(2,'0');\nconst fdd = String(from.getUTCDate()).padStart(2,'0');\nconst date_from = `${fyyyy}-${fmm}-${fdd}`;\nreturn [{ json: { date_from, date_to, model: 'llama3:8b', temperature: 0.2, currency: 'BRL' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        64
+      ],
+      "id": "e25fd320-d2fa-40c7-8d88-639d76ec4da4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1312,
+        112
+      ],
+      "id": "6a33f472-5069-41ae-b681-5302035ef880",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prep Insights v4 (curto e direto)\nconst o = $json;\nconst ACCS = Array.isArray(o.accounts) ? o.accounts : [];\nconst num = v => (isFinite(+v) ? +v : 0);\n\nlet fromISO = o.window_from, toISO_ = o.window_to;\nif (!fromISO || !toISO_) {\n  const now = new Date();\n  const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth()-3, now.getUTCDate()));\n  fromISO = from.toISOString().slice(0,10);\n  toISO_  = now.toISOString().slice(0,10);\n}\n\nlet assets=0, liab=0, bal=0, txc=0, inflow=0, outflow=0;\nconst topAcc = [];\nconst cat = new Map();\n\nfor (const a of ACCS) {\n  const b = num(a.balance_current ?? a.funds_total ?? 0);\n  bal += b;\n  if ((a.balance_type||'').toUpperCase()==='LIABILITY') liab += Math.abs(b); else assets += Math.max(b,0);\n  topAcc.push({account_id:a.account_id||'',account_name:a.account_name||a.name||'',institution_name:a.institution_name||'',balance_current:b,currency:a.currency||'BRL'});\n  for (const t of (a.transactions||[])) {\n    const amt = num(t.amount);\n    if (amt>=0) inflow+=amt; else outflow+=Math.abs(amt);\n    const c = String(t.category||'uncategorized').toLowerCase();\n    cat.set(c, (cat.get(c)||0) + Math.abs(amt));\n  }\n}\ntopAcc.sort((x,y)=>(y.balance_current||0)-(x.balance_current||0));\nconst topCats = [...cat.entries()].sort((a,b)=>b[1]-a[1]).slice(0,4).map(([category,total])=>({category,total:+total.toFixed(2)}));\n\nconst metrics = {\n  link_id: o.link_id||'',\n  owner_id: o.owner_id||'',\n  person: { alias:o.person_alias||o.display_name||'', first_name:o.first_name||'', last_name:o.last_name||'', email:o.email||'' },\n  window: { from: fromISO, to: toISO_ },\n  accounts_summary: {\n    count: ACCS.length, assets_total:+assets.toFixed(2), liabilities_total:+liab.toFixed(2),\n    balance_total:+bal.toFixed(2), top_accounts: topAcc.slice(0,3),\n  },\n  transactions_summary: {\n    count: txc, inflow_sum:+inflow.toFixed(2), outflow_sum:+outflow.toFixed(2),\n    net_flow:+(inflow-outflow).toFixed(2), top_categories: topCats\n  },\n  currency: 'BRL',\n};\n\n// prompt curto + “no-generic”\nconst system = 'Responda SOMENTE JSON válido UTF-8 no formato {\"insights\":[...]}.';\nconst user = `Contexto BRL (compacto):\n${JSON.stringify({\n  link_id: metrics.link_id,\n  window: metrics.window,\n  accounts_summary: metrics.accounts_summary,\n  transactions_summary: metrics.transactions_summary\n})}\nRegras:\n- Até 3 insights úteis, nada genérico.\n- Use dados: concentração por conta, categorias, inflow/outflow, qualidade de dados (ex.: uncategorized alto, outflow=0).\n- Campos curtos (<=140 chars). category ∈ [\"spending\",\"income\",\"savings\",\"subscriptions\",\"alerts\",\"investments\",\"cashflow\"].\n\nSchema:\n{\"type\":\"object\",\"required\":[\"insights\"],\"properties\":{\"insights\":{\"type\":\"array\",\"maxItems\":3,\"items\":{\"type\":\"object\",\"required\":[\"title\",\"summary\",\"category\",\"priority\",\"confidence\",\"suggested_action\"],\"properties\":{\"title\":{\"type\":\"string\"},\"summary\":{\"type\":\"string\"},\"category\":{\"type\":\"string\"},\"priority\":{\"type\":\"string\",\"enum\":[\"low\",\"medium\",\"high\"]},\"confidence\":{\"type\":\"number\",\"minimum\":0,\"maximum\":1},\"suggested_action\":{\"type\":\"string\"}}}}}}\nSaída: SOMENTE {\"insights\":[...]}.`;\n\nreturn [{\n  json: {\n    link_id: metrics.link_id,\n    owner_id: metrics.owner_id,\n    date_from: metrics.window.from,\n    date_to: metrics.window.to,\n    metrics_json: JSON.stringify(metrics),\n    system,              // <— adiciona\n    user,                // <— adiciona\n    body: {\n      model: \"llama3.2:3b\",\n      messages: [\n        { role: \"system\", content: system },\n        { role: \"user\",   content: user }\n      ],\n      stream: false,\n      format: \"json\",\n      keep_alive: \"10m\",\n      options: {\n        temperature: 0.1,\n        top_p: 0.9,\n        num_predict: 450,   // ↑ evita corte\n        num_ctx: 1024,\n        num_batch: 128,\n        num_gpu: 999\n      }\n    }\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1536,
+        128
+      ],
+      "id": "68487aa1-f5cd-42b5-9ae5-a469018a94dc",
+      "name": "Prep Insights"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:11434/api/chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1712,
+        128
+      ],
+      "id": "9a3a9504-2cd3-4bcb-89d7-77c860b3f372",
+      "name": "Ollama — Generate"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1754051256,
+          "mode": "list",
+          "cachedResultName": "AI_Insights",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=1754051256"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "insight_id": "={{ $json.insight_id }}",
+            "link_id": "={{ $json.link_id }}",
+            "source_from": "={{ $json.source_from }}",
+            "source_to": "={{ $json.source_to }}",
+            "generated_at": "={{ $json.generated_at }}",
+            "title": "={{ $json.title }}",
+            "insight": "={{ $json.insight }}",
+            "category": "={{ $json.category }}",
+            "priority": "={{ $json.priority }}",
+            "action": "={{ $json.action }}",
+            "confidence": "={{ $json.confidence }}",
+            "metrics_json": "={{ $json.metrics_json }}",
+            "model": "={{ $json.model }}",
+            "temperature": "={{ $json.temperature }}",
+            "prompt_tokens": "={{ $json.prompt_tokens }}",
+            "completion_tokens": "={{ $json.completion_tokens }}"
+          },
+          "matchingColumns": [
+            "insight_id"
+          ],
+          "schema": [
+            {
+              "id": "insight_id",
+              "displayName": "insight_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "link_id",
+              "displayName": "link_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_from",
+              "displayName": "source_from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_to",
+              "displayName": "source_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "generated_at",
+              "displayName": "generated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "insight",
+              "displayName": "insight",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "action",
+              "displayName": "action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "metrics_json",
+              "displayName": "metrics_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "temperature",
+              "displayName": "temperature",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt_tokens",
+              "displayName": "prompt_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "completion_tokens",
+              "displayName": "completion_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1552,
+        -96
+      ],
+      "id": "c30c136d-abf2-42e7-b781-06a94bb997d6",
+      "name": "Append or update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse resposta do Ollama (HTTP Request) e solta 1 item por insight.\n// Robusto contra JSON com ruído e cortes.\n\nconst prev = $item(0).$node[\"Prep Insights\"].json; // contexto do item atual\n\n// Em algumas execuções o HTTP node pode vir como array; padroniza:\nconst res = $json;\n\n// Tenta extrair o conteúdo textual do modelo:\nlet content = (res && res.message && typeof res.message.content === 'string')\n  ? res.message.content\n  : '';\n\n// Função de parse tolerante\nfunction safeParse(s) {\n  if (!s || typeof s !== 'string') return null;\n  // 1) tenta direto\n  try { return JSON.parse(s); } catch {}\n  // 2) remove crases/backticks e tenta de novo\n  const noTicks = s.replace(/^```json|^```|```$/g, '');\n  try { return JSON.parse(noTicks); } catch {}\n  // 3) pega de { até } (último) e tenta\n  const first = s.indexOf('{');\n  const last  = s.lastIndexOf('}');\n  if (first !== -1 && last !== -1 && last > first) {\n    const mid = s.slice(first, last + 1);\n    try { return JSON.parse(mid); } catch {}\n  }\n  return null;\n}\n\nlet parsed = safeParse(content);\nif (!parsed || typeof parsed !== 'object') parsed = { insights: [] };\n\nconst insights = Array.isArray(parsed.insights) ? parsed.insights : [];\n\nconst meta = {\n  model: res.model,\n  created_at: res.created_at,\n  prompt_tokens: res.prompt_eval_count ?? null,\n  completion_tokens: res.eval_count ?? null,\n};\n\nfunction rowFrom(ins) {\n  return {\n    insight_id: `${prev.link_id}-${(Math.random().toString(36).slice(2,10))}`,\n    link_id: prev.link_id,\n    source_from: prev.date_from,\n    source_to: prev.date_to,\n    generated_at: new Date().toISOString(),\n\n    title: ins.title,\n    insight: ins.summary,\n    category: ins.category,\n    priority: ins.priority,\n    action: ins.suggested_action,\n    confidence: ins.confidence,\n\n    metrics_json: prev.metrics_json,\n    model: meta.model,\n    temperature: prev.temperature ?? 0.1,\n    prompt_tokens: meta.prompt_tokens,\n    completion_tokens: meta.completion_tokens,\n  };\n}\n\nif (insights.length === 0) {\n  return [{\n    json: rowFrom({\n      title: \"Sem JSON válido do modelo\",\n      summary: \"Modelo não retornou {insights} ou veio truncado.\",\n      category: \"alerts\",\n      priority: \"low\",\n      suggested_action: \"Reexecutar com prompt rígido ou aumentar num_predict.\",\n      confidence: 0,\n    }),\n  }];\n}\n\nreturn insights.map((ins) => ({ json: rowFrom(ins) }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1888,
+        128
+      ],
+      "id": "ff0e4260-5231-4720-b89e-a5051785df97",
+      "name": "Parse Ollama"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transactions": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get Accounts": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get People": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Dashboard": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Build Nested Owners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Nested Owners": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Get People",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Accounts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Transactions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prep Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Insights": {
+      "main": [
+        [
+          {
+            "node": "Ollama — Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama — Generate": {
+      "main": [
+        [
+          {
+            "node": "Parse Ollama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Ollama": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b5249550-98a4-4821-b2c1-5da690aed012",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "97ee746f263d76b0d63206a311d80c1cb2bf5798526b9a58072b9fa593fd48a2"
+  },
+  "id": "O4cKDAle0NfC8dn3",
+  "tags": []
+}

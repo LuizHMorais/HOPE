@@ -1,29 +1,44 @@
 import { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { FinancialCard } from '@/components/FinancialCard';
+import { OwnerSelector } from '@/components/OwnerSelector';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { mockTransactions, formatCurrency, getCategoryColor } from '@/lib/mockData';
+import { useGoogleSheetsData } from '@/hooks/useGoogleSheetsData';
+import { formatCurrency, getCategoryColor } from '@/lib/mockData';
 import { Search, Filter, Upload, Download, Calendar } from 'lucide-react';
 
 const Transactions = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   
-  const categories = ['all', ...Array.from(new Set(mockTransactions.map(t => t.category)))];
+  const {
+    selectedOwner,
+    setSelectedOwner,
+    isLoading,
+    fetchAllData,
+    getSelectedOwnerData,
+    getSelectedOwnerMetrics,
+    owners
+  } = useGoogleSheetsData();
+
+  const ownerData = getSelectedOwnerData();
+  const ownerMetrics = getSelectedOwnerMetrics();
   
-  const filteredTransactions = mockTransactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         transaction.merchant?.toLowerCase().includes(searchTerm.toLowerCase());
+  const transactions = ownerData?.transactions || [];
+  const categories = ['all', ...Array.from(new Set(transactions.map(t => t.category)))];
+  
+  const filteredTransactions = transactions.filter(transaction => {
+    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || transaction.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const totalIncome = mockTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = Math.abs(mockTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0));
+  const totalIncome = transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
+  const totalExpenses = Math.abs(transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0));
 
   return (
     <Layout>
@@ -46,19 +61,28 @@ const Transactions = () => {
           </div>
         </div>
 
+        {/* Owner Selector */}
+        <OwnerSelector
+          owners={owners}
+          selectedOwner={selectedOwner}
+          onOwnerChange={setSelectedOwner}
+          onRefresh={fetchAllData}
+          isLoading={isLoading}
+        />
+
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FinancialCard
             title="Total de Receitas"
             value={formatCurrency(totalIncome)}
-            subtitle={`${mockTransactions.filter(t => t.type === 'income').length} transações`}
+            subtitle={`${transactions.filter(t => t.amount > 0).length} transações`}
             variant="success"
             trend="up"
           />
           <FinancialCard
             title="Total de Gastos"
             value={formatCurrency(totalExpenses)}
-            subtitle={`${mockTransactions.filter(t => t.type === 'expense').length} transações`}
+            subtitle={`${transactions.filter(t => t.amount < 0).length} transações`}
             variant="destructive"
             trend="down"
           />
