@@ -65,30 +65,43 @@ export const getDefaultHeaders = () => ({
 });
 
 // Fun√ß√£o para tratar erros da API
-export const handleApiError = (error: any): string => {
-  if (error.response) {
-    const { status, data } = error.response;
+export const handleApiError = (error: unknown): string => {
+  const errorObject = typeof error === 'object' && error !== null ? (error as {
+    response?: { status?: number; data?: { error?: { message?: string } } };
+    request?: unknown;
+    message?: string;
+  }) : null;
+
+  const response = errorObject?.response;
+  if (response && typeof response.status === 'number') {
+    const { status, data } = response;
+    const message = data?.error?.message;
     switch (status) {
       case 400:
-        return 'Dados inv√°lidos enviados para a API';
+        return 'Dados inv·lidos enviados para a API';
       case 401:
-        return 'N√£o autorizado. Verifique suas credenciais';
+        return 'N„o autorizado. Verifique suas credenciais';
       case 403:
-        return 'Acesso negado. Verifique as permiss√µes da planilha';
+        return 'Acesso negado. Verifique as permissıes da planilha';
       case 404:
-        return 'Planilha n√£o encontrada';
+        return 'Planilha n„o encontrada';
       case 429:
-        return 'Muitas requisi√ß√µes. Tente novamente em alguns minutos';
+        return 'Muitas requisiÁıes. Tente novamente em alguns minutos';
       case 500:
         return 'Erro interno do servidor';
       default:
-        return `Erro ${status}: ${data?.error?.message || 'Erro desconhecido'}`;
+        return `Erro ${status}: ${message ?? 'Erro desconhecido'}`;
     }
   }
-  
-  if (error.request) {
-    return 'N√£o foi poss√≠vel conectar com a API do Google Sheets';
+
+  if (errorObject?.request) {
+    return 'N„o foi possÌvel conectar com a API do Google Sheets';
   }
-  
-  return error.message || 'Erro desconhecido';
+
+  if (typeof errorObject?.message === 'string') {
+    return errorObject.message;
+  }
+
+  return 'Erro desconhecido';
 };
+

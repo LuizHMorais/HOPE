@@ -35,6 +35,8 @@ interface HeaderFiltersProps {
   monthlyExpenses?: number;
   netFlow?: number;
   savingsRate?: number;
+  ytdMode?: boolean;
+  onToggleYTD?: (enabled: boolean) => void;
 }
 
 const getInitials = (name: string): string => {
@@ -59,6 +61,8 @@ export const HeaderFilters = ({
   monthlyExpenses = 0,
   netFlow = 0,
   savingsRate = 0,
+  ytdMode = false,
+  onToggleYTD,
 }: HeaderFiltersProps) => {
   const [openOwner, setOpenOwner] = useState(false);
   const [openPeriod, setOpenPeriod] = useState(false);
@@ -68,6 +72,10 @@ export const HeaderFilters = ({
   const initials = getInitials(ownerName);
   const monthLabel = new Date(Date.UTC(2000, selectedMonth, 1)).toLocaleString('pt-BR', { month: 'long' });
   const updatedAt = (lastUpdated || new Date()).toLocaleString('pt-BR');
+  const incomeLabel = ytdMode ? 'Receita acumulada' : 'Receita mensal';
+  const expensesLabel = ytdMode ? 'Gastos acumulados' : 'Gastos mensais';
+  const flowLabel = ytdMode ? 'Fluxo do ano' : 'Fluxo do mês';
+  const periodLabel = ytdMode ? `YTD ${selectedYear}` : `${monthLabel} ${selectedYear}`;
 
   return (
     <Card className="shadow-card hover:shadow-elevated transition-all duration-300 bg-gradient-to-r from-primary/5 via-transparent to-primary/5">
@@ -93,11 +101,13 @@ export const HeaderFilters = ({
                 <Command>
                   <CommandInput placeholder="Buscar usuário..." />
                   <CommandEmpty>Nenhum usuário encontrado.</CommandEmpty>
-                  <CommandList>
-                    <CommandGroup>
-                      {owners.map((o) => (
+                  <CommandList key="command-list">
+                    <CommandGroup key="owners-group">
+                      {owners.filter((o, index, self) => 
+                        index === self.findIndex(owner => owner.id === o.id)
+                      ).map((o) => (
                         <CommandItem
-                          key={o.id}
+                          key={`owner-${o.id}`}
                           value={o.name}
                           onSelect={() => { onOwnerChange(o.id); setOpenOwner(false); }}
                         >
@@ -122,7 +132,7 @@ export const HeaderFilters = ({
                   aria-label="Selecionar período"
                 >
                   <Calendar className="w-4 h-4 mr-2" />
-                  <span className="capitalize">{monthLabel} {selectedYear}</span>
+                  <span className="capitalize">{periodLabel}</span>
                   <ChevronDown className="w-4 h-4 ml-2 opacity-60" />
                 </Button>
               </PopoverTrigger>
@@ -131,11 +141,11 @@ export const HeaderFilters = ({
                   <div className="text-sm font-medium">Selecionar mês</div>
                   <Command>
                     <CommandInput placeholder="Buscar mês..." />
-                    <CommandList>
-                      <CommandGroup>
+                    <CommandList key="month-list">
+                      <CommandGroup key="month-group">
                         {Array.from({ length: 12 }, (_, m) => (
                           <CommandItem
-                            key={m}
+                            key={`month-${m}`}
                             value={new Date(2000, m, 1).toLocaleString('pt-BR', { month: 'long' })}
                             onSelect={() => { onMonthChange(m); setOpenPeriod(false); }}
                           >
@@ -153,7 +163,7 @@ export const HeaderFilters = ({
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Ano" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent key="year-select">
                       {Array.from({ length: 6 }, (_, i) => new Date().getUTCFullYear() - i).map(y => (
                         <SelectItem key={y} value={String(y)}>{y}</SelectItem>
                       ))}
@@ -178,7 +188,20 @@ export const HeaderFilters = ({
             <div className="hidden sm:flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={() => { onMonthChange(new Date().getUTCMonth()); onYearChange(new Date().getUTCFullYear()); }}>Este mês</Button>
               <Button variant="ghost" size="sm" onClick={() => { const d=new Date(); const m=(d.getUTCMonth()+11)%12; const y=m===11?d.getUTCFullYear()-1:d.getUTCFullYear(); onMonthChange(m); onYearChange(y); }}>Anterior</Button>
-              <Button variant="ghost" size="sm" onClick={() => { onMonthChange(0); onYearChange(new Date().getUTCFullYear()); }}>YTD</Button>
+              <Button
+                variant={ytdMode ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => {
+                  const d = new Date();
+                  onYearChange(d.getUTCFullYear());
+                  if (onToggleYTD) { onToggleYTD(!ytdMode); }
+                }}
+                title="Year-To-Date"
+                aria-label="Year-To-Date"
+                aria-pressed={ytdMode}
+              >
+                YTD
+              </Button>
             </div>
           </div>
         </div>
@@ -197,7 +220,7 @@ export const HeaderFilters = ({
               <div className="w-7 h-7 rounded-full bg-success/10 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-success" />
               </div>
-              <span className="text-sm text-muted-foreground">Receita mensal</span>
+              <span className="text-sm text-muted-foreground">{incomeLabel}</span>
             </div>
             <span className="text-sm font-semibold">{formatCurrency(monthlyIncome)}</span>
           </div>
@@ -206,7 +229,7 @@ export const HeaderFilters = ({
               <div className="w-7 h-7 rounded-full bg-destructive/10 flex items-center justify-center">
                 <TrendingDown className="w-4 h-4 text-destructive" />
               </div>
-              <span className="text-sm text-muted-foreground">Gastos mensais</span>
+              <span className="text-sm text-muted-foreground">{expensesLabel}</span>
             </div>
             <span className="text-sm font-semibold">{formatCurrency(monthlyExpenses)}</span>
           </div>
@@ -215,7 +238,7 @@ export const HeaderFilters = ({
               <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
                 <ArrowRightLeft className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm text-muted-foreground">Fluxo do mês</span>
+              <span className="text-sm text-muted-foreground">{flowLabel}</span>
             </div>
             <span className={`text-sm font-semibold ${netFlow >= 0 ? 'text-success' : 'text-destructive'}`}>{formatCurrency(netFlow)}</span>
           </div>

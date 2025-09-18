@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AIInsight } from '@/hooks/useGoogleSheetsData';
+import { Insight } from '@/hooks/useGoogleSheetsData';
 import { 
   Brain, 
   TrendingUp, 
@@ -15,11 +15,12 @@ import {
 } from 'lucide-react';
 
 interface AIInsightsProps {
-  insights: AIInsight[];
+  insights: Insight[];
   isLoading?: boolean;
 }
 
 const getCategoryIcon = (category: string) => {
+  if (!category) return <TrendingDown className="w-4 h-4" />;
   switch (category.toLowerCase()) {
     case 'spending':
     case 'gastos':
@@ -47,42 +48,42 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
-const getCategoryColor = (category: string) => {
+type BadgeVariant = NonNullable<BadgeProps['variant']>;
+
+const getCategoryBadgeVariant = (category: string): BadgeVariant => {
+  if (!category) return 'secondary';
   switch (category.toLowerCase()) {
     case 'spending':
     case 'gastos':
-      return 'destructive';
-    case 'income':
-    case 'receita':
-      return 'success';
     case 'alerts':
     case 'alertas':
       return 'destructive';
-    case 'recommendations':
-    case 'recomendações':
-      return 'default';
+    case 'income':
+    case 'receita':
     case 'savings':
-    case 'poupança':
-      return 'success';
+    case 'poupan�a':
+      return 'default';
     case 'subscriptions':
     case 'assinaturas':
-      return 'secondary';
     case 'cashflow':
     case 'fluxo de caixa':
-      return 'primary';
+    case 'recommendations':
+    case 'recomenda��es':
+      return 'secondary';
     default:
       return 'outline';
   }
 };
 
-const getPriorityColor = (priority: string) => {
+const getPriorityBadgeVariant = (priority: string): BadgeVariant => {
+  if (!priority) return 'secondary';
   switch (priority.toLowerCase()) {
     case 'high':
     case 'alta':
       return 'destructive';
     case 'medium':
-    case 'média':
-      return 'secondary';
+    case 'm�dia':
+      return 'default';
     case 'low':
     case 'baixa':
       return 'outline';
@@ -187,13 +188,13 @@ export const AIInsights = ({ insights, isLoading = false }: AIInsightsProps) => 
                   <h4 className="font-semibold text-sm">{insight.title}</h4>
                   <div className="flex items-center space-x-2 mt-1">
                     <Badge 
-                      variant={getCategoryColor(insight.category) as any}
+                      variant={getCategoryBadgeVariant(insight.category)}
                       className="text-xs"
                     >
                       {insight.category}
                     </Badge>
                     <Badge 
-                      variant={getPriorityColor(insight.priority) as any}
+                      variant={getPriorityBadgeVariant(insight.priority)}
                       className="text-xs"
                     >
                       {insight.priority}
@@ -234,14 +235,10 @@ export const AIInsights = ({ insights, isLoading = false }: AIInsightsProps) => 
 
             <div className="flex items-center justify-between mt-3 pt-2 border-t border-border">
               <div className="text-xs text-muted-foreground">
-                Modelo: {insight.model} • Temp: {insight.temperature}
+                Gerado em: {new Date(insight.generated_at).toLocaleDateString('pt-BR')}
               </div>
               <div className="text-xs text-muted-foreground">
-                {insight.prompt_tokens && insight.completion_tokens && (
-                  <>
-                    {insight.prompt_tokens} → {insight.completion_tokens} tokens
-                  </>
-                )}
+                Prioridade: {insight.priority}
               </div>
             </div>
           </div>

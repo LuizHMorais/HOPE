@@ -1,7 +1,7 @@
+import { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { FinancialCard } from '@/components/FinancialCard';
-import { InsightCard } from '@/components/InsightCard';
-import { OwnerSelector } from '@/components/OwnerSelector';
+import HeaderFilters from '@/components/HeaderFilters';
 import { AIInsights } from '@/components/AIInsights';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,12 +18,14 @@ const Reports = () => {
     isLoading,
     fetchAllData,
     getSelectedOwnerData,
-    getSelectedOwnerMetrics,
+    getSelectedOwnerMetricsFor,
     owners
   } = useGoogleSheetsData();
 
   const ownerData = getSelectedOwnerData();
-  const ownerMetrics = getSelectedOwnerMetrics();
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getUTCMonth());
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getUTCFullYear());
+  const ownerMetrics = getSelectedOwnerMetricsFor(selectedMonth, selectedYear);
 
   const monthlyGoals = ownerMetrics ? ownerMetrics.topCategories.map(cat => ({
     category: cat.category,
@@ -41,68 +43,54 @@ const Reports = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Relatórios</h1>
-            <p className="text-muted-foreground">Insights inteligentes sobre suas finanças</p>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" size="sm">
-              <Calendar className="w-4 h-4 mr-2" />
-              Período
-            </Button>
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-2" />
-              PDF
-            </Button>
-            <Button className="bg-gradient-primary">
-              <Share className="w-4 h-4 mr-2" />
-              Compartilhar
-            </Button>
-          </div>
-        </div>
+        {/* Header premium com filtros */}
+        <HeaderFilters
+          owners={owners}
+          selectedOwner={selectedOwner}
+          onOwnerChange={setSelectedOwner}
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+          onRefresh={() => fetchAllData({ force: true })}
+          isLoading={isLoading}
+          monthlyIncome={ownerMetrics?.monthlyIncome || 0}
+          monthlyExpenses={ownerMetrics?.monthlyExpenses || 0}
+          netFlow={(ownerMetrics?.monthlyIncome || 0) - (ownerMetrics?.monthlyExpenses || 0)}
+          savingsRate={ownerMetrics?.savingsRate || 0}
+        />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <FinancialCard
             title="Taxa de Poupança"
-            value={`${mockSummary.savingsRate}%`}
-            subtitle="Meta: 20% ✓"
-            variant="success"
-            trend="up"
+            value={`${ownerMetrics?.savingsRate?.toFixed(1) || 0}%`}
+            subtitle="Meta: 20%"
+            variant={ownerMetrics?.savingsRate && ownerMetrics.savingsRate >= 20 ? "success" : "warning"}
+            trend={ownerMetrics?.savingsRate && ownerMetrics.savingsRate >= 20 ? "up" : "down"}
           />
           <FinancialCard
             title="Eficiência Orçamentária"
-            value="87%"
+            value={`${ownerMetrics ? Math.min(100, Math.max(0, ((ownerMetrics.monthlyIncome - ownerMetrics.monthlyExpenses) / ownerMetrics.monthlyIncome) * 100)) : 0}%`}
             subtitle="Dentro do planejado"
             variant="success"
             trend="up"
           />
           <FinancialCard
             title="Score Financeiro"
-            value="8.5"
-            subtitle="Muito bom"
+            value={`${ownerMetrics ? Math.min(10, Math.max(0, (ownerMetrics.savingsRate / 20) * 10)) : 0}`}
+            subtitle="Baseado em poupança"
             variant="success"
             trend="up"
           />
           <FinancialCard
             title="Projeção Mensal"
-            value={formatCurrency(2850)}
+            value={formatCurrency(ownerMetrics?.monthlyExpenses || 0)}
             subtitle="Gastos estimados"
             variant="warning"
             trend="neutral"
           />
         </div>
-
-        {/* Owner Selector */}
-        <OwnerSelector
-          owners={owners}
-          selectedOwner={selectedOwner}
-          onOwnerChange={setSelectedOwner}
-          onRefresh={fetchAllData}
-          isLoading={isLoading}
-        />
 
         {/* AI Insights Section */}
         {ownerData && (
@@ -113,74 +101,44 @@ const Reports = () => {
         )}
 
         {/* Budget Goals */}
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
-          <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Target className="w-5 h-5 text-primary" />
-                <span>Metas Orçamentárias</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {monthlyGoals.map((goal, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{goal.category}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {formatCurrency(goal.spent)} / {formatCurrency(goal.budgeted)}
-                    </span>
-                  </div>
-                  <Progress 
-                    value={goal.percentage} 
-                    className="h-2"
-                  />
-                  <div className="flex items-center justify-between text-xs">
-                    <span className={goal.percentage > 80 ? 'text-warning' : 'text-success'}>
-                      {goal.percentage.toFixed(1)}% utilizado
-                    </span>
-                    <span className="text-muted-foreground">
-                      {formatCurrency(goal.budgeted - goal.spent)} restante
-                    </span>
-                  </div>
+        <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Target className="w-5 h-5 text-primary" />
+              <span>Metas Orçamentárias</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {monthlyGoals.length > 0 ? monthlyGoals.map((goal, index) => (
+              <div key={`goal-${goal.category}-${index}`} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">{goal.category}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {formatCurrency(goal.spent)} / {formatCurrency(goal.budgeted)}
+                  </span>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Budget Goals */}
-          <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Target className="w-5 h-5 text-primary" />
-                <span>Metas Orçamentárias</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {monthlyGoals.map((goal, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{goal.category}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {formatCurrency(goal.spent)} / {formatCurrency(goal.budgeted)}
-                    </span>
-                  </div>
-                  <Progress 
-                    value={goal.percentage} 
-                    className="h-2"
-                  />
-                  <div className="flex items-center justify-between text-xs">
-                    <span className={goal.percentage > 80 ? 'text-warning' : 'text-success'}>
-                      {goal.percentage.toFixed(1)}% utilizado
-                    </span>
-                    <span className="text-muted-foreground">
-                      {formatCurrency(goal.budgeted - goal.spent)} restante
-                    </span>
-                  </div>
+                <Progress 
+                  value={goal.percentage} 
+                  className="h-2"
+                />
+                <div className="flex items-center justify-between text-xs">
+                  <span className={goal.percentage > 80 ? 'text-warning' : 'text-success'}>
+                    {goal.percentage.toFixed(1)}% utilizado
+                  </span>
+                  <span className="text-muted-foreground">
+                    {formatCurrency(goal.budgeted - goal.spent)} restante
+                  </span>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+              </div>
+            )) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhuma meta orçamentária configurada</p>
+                <p className="text-sm">Configure suas metas para acompanhar seu progresso</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Audio Reports */}
         <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
@@ -196,29 +154,39 @@ const Reports = () => {
             </p>
             
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                <div>
-                  <div className="font-medium">Resumo Semanal - Setembro 2024</div>
-                  <div className="text-sm text-muted-foreground">
-                    Baseado em {mockInsights.length} insights • Gerado em 18 Set 2024 • 3:45 min
+              {ownerData?.insights && ownerData.insights.length > 0 ? (
+                <>
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <div>
+                      <div className="font-medium">Resumo Semanal - {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Baseado em {ownerData.insights.length} insights • Gerado em {new Date().toLocaleDateString('pt-BR')} • 3:45 min
+                      </div>
+                    </div>
+                    <Button size="sm">
+                      <Play className="w-4 h-4 mr-2" />
+                      Reproduzir
+                    </Button>
                   </div>
+                  
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <div>
+                      <div className="font-medium">Resumo Mensal - {new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</div>
+                      <div className="text-sm text-muted-foreground">Baseado em {Math.max(1, ownerData.insights.length - 2)} insights • Gerado em {new Date(new Date().setDate(new Date().getDate() - 7)).toLocaleDateString('pt-BR')} • 4:12 min</div>
+                    </div>
+                    <Button size="sm">
+                      <Play className="w-4 h-4 mr-2" />
+                      Reproduzir
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Volume2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Nenhum relatório em áudio disponível</p>
+                  <p className="text-sm">Os relatórios são gerados automaticamente com base nos insights da IA</p>
                 </div>
-                <Button size="sm">
-                  <Play className="w-4 h-4 mr-2" />
-                  Reproduzir
-                </Button>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                <div>
-                  <div className="font-medium">Resumo Semanal - Agosto 2024</div>
-                  <div className="text-sm text-muted-foreground">Baseado em 5 insights • Gerado em 8 Set 2024 • 4:12 min</div>
-                </div>
-                <Button size="sm">
-                  <Play className="w-4 h-4 mr-2" />
-                  Reproduzir
-                </Button>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>

@@ -3,6 +3,10 @@ import { useToast } from './use-toast';
 import { getMockSheetData } from '@/data/mockGoogleSheetsData';
 
 // Tipos baseados na estrutura da planilha
+type SheetCell = string | number | boolean | null | undefined;
+type SheetRow = SheetCell[];
+type SheetValues = SheetRow[];
+
 export interface Person {
   link_id: string;
   person_alias: string;
@@ -86,15 +90,15 @@ export const useGoogleSheetsDataSimple = () => {
   const { toast } = useToast();
 
   // Função para converter dados da planilha em objetos tipados
-  const parseSheetData = useCallback((values: any[][], headers: string[]) => {
-    if (!values || values.length <= 1) return [];
-    
-    return values.slice(1).map(row => {
-      const obj: any = {};
+  const parseSheetData = useCallback(<T extends Record<string, SheetCell>>(values: SheetValues, headers: readonly (keyof T & string)[]) => {
+    if (!values || values.length <= 1) return [] as T[];
+
+    return values.slice(1).map((row) => {
+      const acc: Partial<Record<keyof T, SheetCell>> = {};
       headers.forEach((header, index) => {
-        obj[header] = row[index] || '';
+        acc[header] = row[index];
       });
-      return obj;
+      return acc as T;
     });
   }, []);
 
@@ -121,11 +125,11 @@ export const useGoogleSheetsDataSimple = () => {
       const dashboardHeaders = ['link_id', 'total_balance', 'gasto_mes_atual', 'gasto_mes_anterior', 'variacao_percentual', 'total_transactions', 'inflow_sum', 'outflow_sum', 'net_flow'];
       const insightsHeaders = ['insight_id', 'link_id', 'source_from', 'source_to', 'generated_at', 'title', 'insight', 'category', 'priority', 'action', 'confidence', 'metrics_json', 'model', 'temperature', 'prompt_tokens', 'completion_tokens'];
 
-      const people = parseSheetData(peopleData, peopleHeaders) as Person[];
-      const accounts = parseSheetData(accountsData, accountsHeaders) as Account[];
-      const transactions = parseSheetData(transactionsData, transactionsHeaders) as Transaction[];
-      const dashboard = parseSheetData(dashboardData, dashboardHeaders) as DashboardMetrics[];
-      const insights = parseSheetData(insightsData, insightsHeaders) as AIInsight[];
+      const people = parseSheetData<Record<string, SheetCell>>(peopleData, peopleHeaders) as Person[];
+      const accounts = parseSheetData<Record<string, SheetCell>>(accountsData, accountsHeaders) as Account[];
+      const transactions = parseSheetData<Record<string, SheetCell>>(transactionsData, transactionsHeaders) as Transaction[];
+      const dashboard = parseSheetData<Record<string, SheetCell>>(dashboardData, dashboardHeaders) as DashboardMetrics[];
+      const insights = parseSheetData<Record<string, SheetCell>>(insightsData, insightsHeaders) as AIInsight[];
 
       setData({ people, accounts, transactions, dashboard, insights });
 

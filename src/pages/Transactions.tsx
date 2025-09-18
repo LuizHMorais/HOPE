@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { FinancialCard } from '@/components/FinancialCard';
-import { OwnerSelector } from '@/components/OwnerSelector';
+import HeaderFilters from '@/components/HeaderFilters';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,19 +21,23 @@ const Transactions = () => {
     isLoading,
     fetchAllData,
     getSelectedOwnerData,
-    getSelectedOwnerMetrics,
+    getSelectedOwnerMetricsFor,
+    getSelectedOwnerTransactionsFor,
     owners
   } = useGoogleSheetsData();
 
   const ownerData = getSelectedOwnerData();
-  const ownerMetrics = getSelectedOwnerMetrics();
-  
-  const transactions = ownerData?.transactions || [];
-  const categories = ['all', ...Array.from(new Set(transactions.map(t => t.category)))];
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getUTCMonth());
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getUTCFullYear());
+  const ownerMetrics = getSelectedOwnerMetricsFor(selectedMonth, selectedYear);
+
+  const transactions = getSelectedOwnerTransactionsFor(selectedMonth, selectedYear);
+  const categoryFor = (transaction: (typeof transactions)[number]) => transaction.category?.trim() || 'Sem categoria';
+  const categories = ['all', ...Array.from(new Set(transactions.map(categoryFor).filter(Boolean)))] as string[];
   
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = (transaction.description || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || transaction.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || categoryFor(transaction) === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -61,13 +65,21 @@ const Transactions = () => {
           </div>
         </div>
 
-        {/* Owner Selector */}
-        <OwnerSelector
+        {/* Header premium com filtros */}
+        <HeaderFilters
           owners={owners}
           selectedOwner={selectedOwner}
           onOwnerChange={setSelectedOwner}
-          onRefresh={fetchAllData}
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+          onRefresh={() => fetchAllData({ force: true })}
           isLoading={isLoading}
+          monthlyIncome={ownerMetrics?.monthlyIncome || 0}
+          monthlyExpenses={ownerMetrics?.monthlyExpenses || 0}
+          netFlow={(ownerMetrics?.monthlyIncome || 0) - (ownerMetrics?.monthlyExpenses || 0)}
+          savingsRate={ownerMetrics?.savingsRate || 0}
         />
 
         {/* Summary Cards */}
@@ -146,34 +158,46 @@ const Transactions = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {filteredTransactions.map((transaction) => (
-                <div
-                  key={transaction.transaction_id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors cursor-pointer"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${transaction.amount >= 0 ? 'bg-success' : 'bg-destructive'}`} />
-                      <div>
-                        <div className="font-medium text-foreground">{transaction.description}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {transaction.category && `${transaction.category} • `}
-                          {transaction.value_date ? new Date(transaction.value_date).toLocaleDateString('pt-BR') : ''}
+              {filteredTransactions.map((transaction) => {
+                const isIncome = transaction.amount >= 0;
+                const displayDate = transaction.value_date || transaction.posted_date;
+                const categoryLabel = categoryFor(transaction);
+                return (
+                  <div
+                    key={transaction.transaction_id}
+                    className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors cursor-pointer"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-3 h-3 rounded-full ${isIncome ? 'bg-success' : 'bg-destructive'}`} />
+                        <div>
+                          <div className="font-medium text-foreground">{transaction.description}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {categoryLabel}
+                            {displayDate ? ` • ${new Date(displayDate).toLocaleDateString('pt-BR')}` : ''}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-4">
-                    <Badge variant={transaction.amount >= 0 ? 'default' : 'secondary'} className="text-xs">
-                      {transaction.category}
-                    </Badge>
-                    <div className={`font-bold text-lg ${transaction.amount >= 0 ? 'text-success' : 'text-destructive'}`}>
-                      {formatCurrency(transaction.amount)}
+
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center gap-2">
+                        <Badge variant={isIncome ? 'default' : 'destructive'} className="text-xs">
+                          {isIncome ? 'Entrada' : 'Saída'}
+                        </Badge>
+                        {categoryLabel && (
+                          <Badge variant="outline" className="text-xs">
+                            {categoryLabel}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className={`font-bold text-lg ${isIncome ? 'text-success' : 'text-destructive'}`}>
+                        {formatCurrency(transaction.amount)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {filteredTransactions.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">

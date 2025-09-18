@@ -1,8 +1,13 @@
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { OwnerSelector } from '@/components/OwnerSelector';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import HeaderFilters from '@/components/HeaderFilters';
 import { GoogleSheetsIntegration } from '@/components/GoogleSheetsIntegration';
 import { useGoogleSheetsData } from '@/hooks/useGoogleSheetsData';
+import { formatCurrency } from '@/lib/mockData';
+import { useState } from 'react';
+import { User, Mail, Phone, CreditCard, TrendingUp, Calendar, Settings, Shield, Activity, DollarSign } from 'lucide-react';
 
 const Profile = () => {
   const {
@@ -11,10 +16,14 @@ const Profile = () => {
     isLoading,
     fetchAllData,
     getSelectedOwnerData,
+    getSelectedOwnerMetricsFor,
     owners
   } = useGoogleSheetsData();
 
   const ownerData = getSelectedOwnerData();
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getUTCMonth());
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getUTCFullYear());
+  const ownerMetrics = getSelectedOwnerMetricsFor(selectedMonth, selectedYear);
 
   return (
     <Layout>
@@ -24,15 +33,23 @@ const Profile = () => {
           <p className="text-muted-foreground">Gerencie seus dados e conexões.</p>
         </div>
 
-        <OwnerSelector
+        <HeaderFilters
           owners={owners}
           selectedOwner={selectedOwner}
           onOwnerChange={setSelectedOwner}
-          onRefresh={fetchAllData}
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+          onRefresh={() => fetchAllData({ force: true })}
           isLoading={isLoading}
+          monthlyIncome={ownerMetrics?.monthlyIncome || 0}
+          monthlyExpenses={ownerMetrics?.monthlyExpenses || 0}
+          netFlow={(ownerMetrics?.monthlyIncome || 0) - (ownerMetrics?.monthlyExpenses || 0)}
+          savingsRate={ownerMetrics?.savingsRate || 0}
         />
 
-        <Card className="shadow-card">
+        <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
           <CardHeader>
             <CardTitle>Informações do Usuário</CardTitle>
           </CardHeader>
@@ -62,7 +79,7 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card">
+        <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
           <CardHeader>
             <CardTitle>Integrações</CardTitle>
           </CardHeader>

@@ -12,7 +12,7 @@ const DiagnosticoConexao = () => {
           <p className="text-muted-foreground">Verifique a configuração das APIs e teste a conexão com o Google Sheets.</p>
         </div>
 
-        <Card className="shadow-card">
+        <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
           <CardHeader>
             <CardTitle>Status das Configurações</CardTitle>
           </CardHeader>
@@ -21,7 +21,7 @@ const DiagnosticoConexao = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card">
+        <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
           <CardHeader>
             <CardTitle>Teste de Conexão Google Sheets</CardTitle>
           </CardHeader>

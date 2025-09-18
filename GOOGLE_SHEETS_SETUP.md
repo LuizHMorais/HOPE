@@ -29,7 +29,18 @@ Este documento explica como configurar a integração com Google Sheets para o a
 VITE_GOOGLE_SHEETS_API_KEY=AQ.Ab8RN6L6lcMgLNGXJZOvPUOxq_utwCf1PBlx86-fdOq456cW0g
 ```
 
-### 2. Configurar Permissões da Planilha
+### 2. Habilitar modo demonstração (opcional)
+
+Se estiver configurando o projeto em um ambiente sem acesso à API ou apenas validando o front-end, você pode ativar o modo mock adicionando ao `.env.local`:
+
+```bash
+# .env.local
+VITE_USE_MOCK_DATA=true
+```
+
+Com essa flag habilitada o app passa a aceitar automaticamente os dados de demonstração sempre que a API do Google Sheets não responder. O dashboard mostra o alerta correspondente no componente **Status dos Dados**.
+
+### 3. Configurar Permissões da Planilha
 
 1. Abra sua planilha no Google Sheets
 2. Clique em "Compartilhar" (botão azul no canto superior direito)
@@ -37,7 +48,7 @@ VITE_GOOGLE_SHEETS_API_KEY=AQ.Ab8RN6L6lcMgLNGXJZOvPUOxq_utwCf1PBlx86-fdOq456cW0g
    - **Para desenvolvimento**: "Qualquer pessoa com o link pode visualizar"
    - **Para produção**: Configure permissões específicas
 
-### 3. Estrutura da Planilha
+### 4. Estrutura da Planilha
 
 #### Aba `People`
 ```
@@ -167,6 +178,7 @@ const Dashboard = () => {
 2. **Cache**: Os dados são cacheados por 5 minutos
 3. **Retry**: Sistema de retry automático em caso de falha
 4. **Segurança**: Em produção, use OAuth2 em vez de API Key
+5. **Status dos Dados**: O componente "Status dos Dados" do dashboard informa se o app está usando dados reais, mock ou uma mescla — use-o para validar se a configuração da API foi aplicada.
 
 ## 🔗 Links Úteis
 

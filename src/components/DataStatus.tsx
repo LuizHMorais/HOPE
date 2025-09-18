@@ -9,6 +9,10 @@ interface DataStatusProps {
   onRefresh: () => void;
   isLoading?: boolean;
   className?: string;
+  dataSource?: 'api' | 'mock' | 'mixed' | 'unknown';
+  errorMessage?: string | null;
+  spreadsheetUrl?: string;
+  mockModeEnabled?: boolean;
 }
 
 export const DataStatus = ({ 
@@ -16,16 +20,49 @@ export const DataStatus = ({
   apiKeyValid,
   onRefresh, 
   isLoading = false,
-  className = '' 
+  className = '',
+  dataSource = 'unknown',
+  errorMessage,
+  spreadsheetUrl,
+  mockModeEnabled = false,
 }: DataStatusProps) => {
+  const statusLabel = apiKeyValid === false
+    ? 'Dados de Demonstração'
+    : apiKeyValid === true
+      ? 'Dados em Tempo Real'
+      : 'Verificando Conexão...';
+
+  const statusBadge: 'default' | 'secondary' | 'destructive' | 'outline' = apiKeyValid === false
+    ? 'secondary'
+    : apiKeyValid === true
+      ? 'default'
+      : 'outline';
+
+  const iconVariant = apiKeyValid === false
+    ? 'bg-orange-100'
+    : apiKeyValid === true
+      ? 'bg-green-100'
+      : 'bg-gray-100';
+
+  const dataSourceLabelMap: Record<typeof dataSource, string> = {
+    api: 'Google Sheets',
+    mock: 'Mock local',
+    mixed: 'Parcial (API + mock)',
+    unknown: 'Aguardando carregamento'
+  };
+
+  const dataSourceBadgeVariant: 'outline' | 'default' | 'secondary' = dataSource === 'api'
+    ? 'default'
+    : dataSource === 'mock'
+      ? 'secondary'
+      : 'outline';
+
   return (
     <Card className={`shadow-card ${className}`}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              apiKeyValid === false ? 'bg-orange-100' : apiKeyValid === true ? 'bg-green-100' : 'bg-gray-100'
-            }`}>
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconVariant}`}>
               {apiKeyValid === false ? (
                 <WifiOff className="w-5 h-5 text-orange-600" />
               ) : apiKeyValid === true ? (
@@ -37,12 +74,8 @@ export const DataStatus = ({
             
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">
-                  {apiKeyValid === false ? 'Dados de Demonstração' : 
-                   apiKeyValid === true ? 'Dados em Tempo Real' : 
-                   'Verificando Conexão...'}
-                </span>
-                <Badge variant={apiKeyValid === false ? "secondary" : apiKeyValid === true ? "default" : "outline"}>
+                <span className="text-sm font-medium">{statusLabel}</span>
+                <Badge variant={statusBadge}>
                   {apiKeyValid === false ? 'Offline' : apiKeyValid === true ? 'Online' : 'Testando'}
                 </Badge>
               </div>
@@ -54,6 +87,22 @@ export const DataStatus = ({
                   : 'Testando conexão com a API...'
                 }
               </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Fonte de dados: 
+                <Badge variant={dataSourceBadgeVariant} className="ml-1">
+                  {dataSourceLabelMap[dataSource]}
+                </Badge>
+              </div>
+              {mockModeEnabled && apiKeyValid !== true && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  Modo demonstração habilitado via <code>VITE_USE_MOCK_DATA=true</code>.
+                </div>
+              )}
+              {errorMessage && (
+                <div className="text-xs text-destructive mt-1" role="status">
+                  {errorMessage}
+                </div>
+              )}
             </div>
           </div>
 
@@ -71,7 +120,18 @@ export const DataStatus = ({
               )}
             </Button>
             
-            {apiKeyValid === false && (
+            {spreadsheetUrl && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(spreadsheetUrl, '_blank')}
+              >
+                <ExternalLink className="w-4 h-4 mr-1" />
+                Abrir Planilha
+              </Button>
+            )}
+
+            {apiKeyValid === false && !spreadsheetUrl && (
               <Button
                 variant="outline"
                 size="sm"

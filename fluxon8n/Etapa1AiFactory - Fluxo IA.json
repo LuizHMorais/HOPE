@@ -14,8 +14,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        160,
-        64
+        0,
+        0
       ],
       "id": "5c3b2b01-934a-458e-9187-87d1552b13fc",
       "name": "Schedule Trigger"
@@ -41,8 +41,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        576,
-        96
+        448,
+        160
       ],
       "id": "8aba2351-a725-455d-9f54-145644b784b4",
       "name": "Get Transactions",
@@ -140,8 +140,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        624,
-        240
+        448,
+        336
       ],
       "id": "ac2561f0-0e92-44ca-a3c7-3a0425d193bc",
       "name": "Get Dashboard",
@@ -159,8 +159,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        960,
-        112
+        1088,
+        144
       ],
       "id": "85d44937-a1e7-470d-80aa-4012f5e77cc2",
       "name": "Merge1"
@@ -172,8 +172,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        816,
-        -16
+        912,
+        -32
       ],
       "id": "f5ea3ee8-d1ce-44ea-922a-878dc49d765e",
       "name": "Merge2"
@@ -185,8 +185,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        640,
-        -144
+        752,
+        -176
       ],
       "id": "1c543de7-4e21-4e58-9eb2-a57aead47759",
       "name": "Merge"
@@ -198,8 +198,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1136,
-        112
+        1264,
+        144
       ],
       "id": "207bc8b3-2e57-4442-9809-69b0eb62ee32",
       "name": "Build Nested Owners"
@@ -211,8 +211,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        304,
-        64
+        208,
+        0
       ],
       "id": "e25fd320-d2fa-40c7-8d88-639d76ec4da4",
       "name": "Code in JavaScript"
@@ -224,8 +224,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        1312,
-        112
+        1472,
+        144
       ],
       "id": "6a33f472-5069-41ae-b681-5302035ef880",
       "name": "Loop Over Items"
@@ -237,8 +237,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1536,
-        128
+        1680,
+        160
       ],
       "id": "68487aa1-f5cd-42b5-9ae5-a469018a94dc",
       "name": "Prep Insights"
@@ -270,8 +270,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1712,
-        128
+        1856,
+        160
       ],
       "id": "9a3a9504-2cd3-4bcb-89d7-77c860b3f372",
       "name": "Ollama — Generate"
@@ -310,8 +310,8 @@
             "metrics_json": "={{ $json.metrics_json }}",
             "model": "={{ $json.model }}",
             "temperature": "={{ $json.temperature }}",
-            "prompt_tokens": "={{ $json.prompt_tokens }}",
-            "completion_tokens": "={{ $json.completion_tokens }}"
+            "prompt_tokens": "={{ $json.prompt_eval_count }}",
+            "completion_tokens": "={{ $json.eval_count }}"
           },
           "matchingColumns": [
             "insight_id"
@@ -471,8 +471,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1552,
-        -96
+        1776,
+        -64
       ],
       "id": "c30c136d-abf2-42e7-b781-06a94bb997d6",
       "name": "Append or update row in sheet1",
@@ -490,8 +490,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1888,
-        128
+        2064,
+        160
       ],
       "id": "ff0e4260-5231-4720-b89e-a5051785df97",
       "name": "Parse Ollama"
@@ -680,7 +680,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b5249550-98a4-4821-b2c1-5da690aed012",
+  "versionId": "7542c022-cf90-42ee-b6b8-61efc23fcfe9",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "97ee746f263d76b0d63206a311d80c1cb2bf5798526b9a58072b9fa593fd48a2"

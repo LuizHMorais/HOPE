@@ -4,15 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getConfigInfo, validateConfig } from '@/config/env';
 import { CheckCircle, XCircle, AlertTriangle, ExternalLink, Copy, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 export const ConfigStatus = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
   
-  const configInfo = getConfigInfo();
-  const validation = validateConfig();
+  // Memoizar as configurações para evitar recálculos desnecessários
+  const configInfo = useMemo(() => getConfigInfo(), []);
+  const validation = useMemo(() => validateConfig(), []);
 
   const handleRefresh = () => {
     setIsRefreshing(true);

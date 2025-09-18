@@ -69,7 +69,7 @@ export const ConnectionTester = () => {
     }
   };
 
-  const getErrorDetails = (status: number, data: any): string => {
+  const getErrorDetails = (status: number, data: unknown): string => {
     switch (status) {
       case 400:
         return '400 Bad Request: Verifique ID da planilha, nome da aba e parâmetros.';
@@ -81,8 +81,12 @@ export const ConnectionTester = () => {
         return 'Planilha não encontrada. Verifique o ID da planilha.';
       case 429:
         return 'Muitas requisições. Tente novamente em alguns minutos.';
-      default:
-        return data?.error?.message || 'Erro desconhecido';
+      default: {
+        const message = typeof data === 'object' && data !== null && 'error' in data
+          ? (data as { error?: { message?: string } }).error?.message
+          : undefined;
+        return message || 'Erro desconhecido';
+      }
     }
   };
 

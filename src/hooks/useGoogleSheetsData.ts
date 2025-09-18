@@ -1,9 +1,35 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from './use-toast';
-import { GOOGLE_SHEETS_CONFIG, buildSheetUrl, buildBatchGetUrl, handleApiError } from '@/config/googleSheets';
-import { getMockSheetData } from '@/data/mockGoogleSheetsData';
+import { 
+  getMockSheetData,
+  mockPeopleData,
+  mockAccountsData,
+  mockTransactionsData,
+  mockDashboardData,
+  mockAIInsightsData
+} from '@/data/mockGoogleSheetsData';
+import { ENV_CONFIG } from '@/config/env';
+import { buildBatchGetUrl } from '@/config/googleSheets';
 
-// Tipos baseados na estrutura da planilha
+// Função simples para processar dados do Google Sheets
+const parseSheetData = (values: string[][], sheetName: string): Record<string, unknown>[] => {
+  if (!values || values.length === 0) return [];
+  
+  const headers = values[0];
+  const rows = values.slice(1);
+  
+  return rows.map(row => {
+    const obj: Record<string, unknown> = {};
+    headers.forEach((header, index) => {
+      if (header && row[index] !== undefined) {
+        obj[header] = row[index];
+      }
+    });
+    return obj;
+  });
+};
+
+// Tipos simplificados
 export interface Person {
   link_id: string;
   person_alias: string;
@@ -24,7 +50,6 @@ export interface Account {
   funds_total?: number;
   account_type?: string;
   is_liability?: boolean;
-  is_liability_account?: boolean;
 }
 
 export interface Transaction {
@@ -40,7 +65,7 @@ export interface Transaction {
   merchant?: string;
 }
 
-export interface DashboardMetrics {
+export interface Dashboard {
   link_id: string;
   total_balance: number;
   gasto_mes_atual: number;
@@ -52,7 +77,7 @@ export interface DashboardMetrics {
   net_flow: number;
 }
 
-export interface AIInsight {
+export interface Insight {
   insight_id: string;
   link_id: string;
   source_from: string;
@@ -61,448 +86,133 @@ export interface AIInsight {
   title: string;
   insight: string;
   category: string;
-  priority: 'low' | 'medium' | 'high';
+  priority: string;
   action: string;
   confidence: number;
-  metrics_json: string;
-  model: string;
-  temperature: number;
-  prompt_tokens?: number;
-  completion_tokens?: number;
 }
 
-export interface FinancialData {
-  people: Person[];
+export interface OwnerData {
+  person: Person | null;
   accounts: Account[];
   transactions: Transaction[];
-  dashboard: DashboardMetrics[];
-  insights: AIInsight[];
+  dashboard: Dashboard | null;
+  insights: Insight[];
 }
 
-// Configurações movidas para o arquivo de config
+export interface OwnerMetrics {
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  savingsRate: number;
+  topCategories: Array<{ category: string; amount: number }>;
+  totalAssets: number;
+  totalLiabilities: number;
+  netWorth: number;
+}
 
 export const useGoogleSheetsData = () => {
-  // Cache em memória para persistir entre páginas/rotas
-  // (compartilhado por módulo enquanto o app estiver carregado)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const memoryCacheRef = (globalThis as any).__HOPE_SHEETS_CACHE__ as { data: FinancialData; timestamp: number } | undefined;
-  const setMemoryCache = (payload: { data: FinancialData; timestamp: number }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (globalThis as any).__HOPE_SHEETS_CACHE__ = payload;
-  };
-  const [data, setData] = useState<FinancialData>({
+  const [data, setData] = useState<{
+    people: Person[];
+    accounts: Account[];
+    transactions: Transaction[];
+    dashboard: Dashboard[];
+    insights: Insight[];
+  }>({
     people: [],
     accounts: [],
     transactions: [],
     dashboard: [],
-    insights: []
+    insights: [],
   });
-  const [selectedOwner, setSelectedOwner] = useState<string>('');
+
+  const [selectedOwner, setSelectedOwner] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [apiKeyValid, setApiKeyValid] = useState<boolean | null>(null); // null = não testado, true = válida, false = inválida
+  const [apiKeyValid, setApiKeyValid] = useState<boolean | null>(null);
+  const [dataSource, setDataSource] = useState<'google_sheets' | 'mock' | 'unknown'>('unknown');
+  const [isUsingMockData, setIsUsingMockData] = useState(false);
+
   const { toast } = useToast();
+  const hasInitialized = useRef(false);
 
-  // Função para testar se a API Key é válida (executa apenas uma vez)
-  const testApiKey = useCallback(async () => {
-    if (apiKeyValid !== null) return apiKeyValid; // Já foi testado
-    
+  // Função simples para carregar dados
+  const fetchAllData = useCallback(async (opts?: { force?: boolean; silent?: boolean }) => {
+    console.log('fetchAllData chamado', { force: opts?.force, silent: opts?.silent });
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const url = buildSheetUrl('People');
-      const response = await fetch(url);
+      // Verificar se deve usar mock data
+      if (ENV_CONFIG.APP.USE_MOCK_DATA) {
+        // Usar dados mock diretamente (sem conversão)
+        const convertedData = {
+          people: mockPeopleData,
+          accounts: mockAccountsData,
+          transactions: mockTransactionsData,
+          dashboard: mockDashboardData,
+          insights: mockAIInsightsData,
+        };
       
-      if (response.ok) {
-        setApiKeyValid(true);
-        return true;
-      } else {
-        setApiKeyValid(false);
-        return false;
+      setData(convertedData);
+      setDataSource('mock');
+      setApiKeyValid(true);
+      
+      if (!opts?.silent) {
+        toast({
+          title: "Dados carregados",
+          description: "Dados mock carregados com sucesso",
+        });
       }
-    } catch (error) {
-      setApiKeyValid(false);
-      return false;
-    }
-  }, [apiKeyValid]);
-
-  // Função para buscar dados de uma aba específica
-  const fetchSheetData = useCallback(async (sheetName: string) => {
-    // Se a API Key já foi testada e é inválida, respeitar flag de mock
-    if (apiKeyValid === false) {
-      // Apenas usa mock se explicitamente habilitado
-      if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-        return await getMockSheetData(sheetName);
-      }
-      throw new Error('API Key inválida e uso de mock desabilitado');
-    }
-    
-    // Se ainda não foi testada, testar primeiro
-    if (apiKeyValid === null) {
-      const isValid = await testApiKey();
-      if (!isValid) {
-        if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-          return await getMockSheetData(sheetName);
-        }
-        throw new Error('API Key inválida e uso de mock desabilitado');
-      }
-    }
-    
-    // Se chegou até aqui, a API Key é válida, tentar buscar dados reais
-    try {
-      const url = buildSheetUrl(sheetName);
+    } else {
+      // Usar dados reais do Google Sheets
+      const { buildBatchGetUrl } = await import('@/config/googleSheets');
+      
+      const url = buildBatchGetUrl([
+        'People!A:F',
+        'Accounts!A:J', 
+        'Transactions!A:J',
+        'Dashboard!A:J',
+        'AI_Insights!A:F'
+      ]);
+      
       const response = await fetch(url);
       
       if (!response.ok) {
-        console.warn(`API falhou para ${sheetName} (${response.status})`);
-        if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-          return await getMockSheetData(sheetName);
-        }
-        const errBody = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errBody}`);
+        throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
       }
       
       const result = await response.json();
-      return result.values || [];
-    } catch (error) {
-      console.warn(`Erro ao buscar ${sheetName} da API:`, error);
-      if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-        return await getMockSheetData(sheetName);
-      }
-      throw error;
-    }
-  }, [apiKeyValid, testApiKey]);
-
-  // Utilitários de parsing
-  const normalize = (s: any): string => String(s || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .trim();
-
-  const parseNumber = (v: any): number => {
-    if (v === null || v === undefined) return 0;
-    if (typeof v === 'number') return v;
-    let s = String(v).trim();
-    const negative = /^\(.*\)$/.test(s) || /^-/.test(s);
-    s = s.replace(/[()\s]/g, '');
-    // remove currency and non-digit, keep , . and -
-    s = s.replace(/[^0-9,.-]/g, '');
-    // if both comma and dot, assume dot thousand sep, comma decimal
-    if (s.includes(',') && s.includes('.')) {
-      s = s.replace(/\./g, '');
-      s = s.replace(/,/g, '.');
-    } else if (s.includes(',')) {
-      // only comma present, treat as decimal
-      s = s.replace(/,/g, '.');
-    }
-    const n = parseFloat(s);
-    if (isNaN(n)) return 0;
-    return negative ? -Math.abs(n) : n;
-  };
-
-  const excelDateToISO = (d: number): string => {
-    // Google Sheets/Excel epoch 1899-12-30
-    const epoch = new Date(Date.UTC(1899, 11, 30));
-    const ms = d * 24 * 60 * 60 * 1000;
-    const date = new Date(epoch.getTime() + ms);
-    return date.toISOString();
-  };
-
-  const parseDate = (v: any): string => {
-    if (v === null || v === undefined || v === '') return '';
-    if (typeof v === 'number') {
-      // probably serial date
-      return excelDateToISO(v);
-    }
-    const s = String(v).trim();
-    // ISO
-    const iso = Date.parse(s);
-    if (!isNaN(iso)) return new Date(iso).toISOString();
-    // dd/mm/yyyy or d/m/yyyy
-    const m = s.match(/^(\d{1,2})[\/](\d{1,2})[\/](\d{4})$/);
-    if (m) {
-      const dd = parseInt(m[1], 10);
-      const mm = parseInt(m[2], 10) - 1;
-      const yy = parseInt(m[3], 10);
-      const d = new Date(Date.UTC(yy, mm, dd));
-      return d.toISOString();
-    }
-    return '';
-  };
-
-  // Parse genérico baseado no cabeçalho da primeira linha + aliases
-  const parseSheetDataFlexible = useCallback((values: any[][], aliases: Record<string, string[]>) => {
-    if (!values || values.length === 0) return [];
-    const headers = (values[0] || []).map(normalize);
-    const indexByCanonical: Record<string, number> = {};
-    Object.entries(aliases).forEach(([canonical, aliasList]) => {
-      const candidates = [canonical, ...aliasList];
-      let idx = -1;
-      for (const cand of candidates) {
-        const n = normalize(cand);
-        idx = headers.indexOf(n);
-        if (idx !== -1) break;
-      }
-      if (idx !== -1) indexByCanonical[canonical] = idx;
-    });
-    return values.slice(1).map((row) => {
-      const obj: any = {};
-      Object.entries(indexByCanonical).forEach(([canonical, idx]) => {
-        obj[canonical] = row[idx];
-      });
-      return obj;
-    });
-  }, []);
-
-  const toBool = (v: any): boolean => {
-    if (typeof v === 'boolean') return v;
-    const s = normalize(v);
-    return ['1','true','yes','sim','y','s'].includes(s);
-  };
-
-  // Função para buscar todos os dados
-  const fetchAllData = useCallback(async (opts?: { force?: boolean; silent?: boolean }) => {
-    setIsLoading(true);
-    setError(null);
-    // Servir do cache se dentro do período
-    const now = Date.now();
-    if (!opts?.force && memoryCacheRef && now - memoryCacheRef.timestamp < GOOGLE_SHEETS_CONFIG.CACHE_DURATION) {
-      setData(memoryCacheRef.data);
-      setIsLoading(false);
-      return;
-    }
-    
-    try {
-      // Tentar usar batchGet para reduzir requisições
-      let peopleData: any[][] = [];
-      let accountsData: any[][] = [];
-      let transactionsData: any[][] = [];
-      let dashboardData: any[][] = [];
-      let insightsData: any[][] = [];
-
-      try {
-        const batchUrl = buildBatchGetUrl([
-          GOOGLE_SHEETS_CONFIG.SHEETS.PEOPLE,
-          GOOGLE_SHEETS_CONFIG.SHEETS.ACCOUNTS,
-          GOOGLE_SHEETS_CONFIG.SHEETS.TRANSACTIONS,
-          GOOGLE_SHEETS_CONFIG.SHEETS.DASHBOARD,
-          GOOGLE_SHEETS_CONFIG.SHEETS.AI_INSIGHTS,
-        ]);
-        const batchRes = await fetch(batchUrl);
-        if (batchRes.ok) {
-          const batchJson = await batchRes.json();
-          const valueRanges = batchJson.valueRanges || [];
-          const map: Record<string, any[][]> = {};
-          valueRanges.forEach((vr: any) => {
-            const range = vr.range || '';
-            // range vem como 'SheetName'!A1:Z - extraímos o nome entre aspas simples
-            const match = range.match(/^'?(.*?)'?!/);
-            const name = match ? match[1] : range;
-            map[name] = vr.values || [];
-          });
-          peopleData = map[GOOGLE_SHEETS_CONFIG.SHEETS.PEOPLE] || [];
-          accountsData = map[GOOGLE_SHEETS_CONFIG.SHEETS.ACCOUNTS] || [];
-          transactionsData = map[GOOGLE_SHEETS_CONFIG.SHEETS.TRANSACTIONS] || [];
-          dashboardData = map[GOOGLE_SHEETS_CONFIG.SHEETS.DASHBOARD] || [];
-          insightsData = map[GOOGLE_SHEETS_CONFIG.SHEETS.AI_INSIGHTS] || [];
-        } else {
-          throw new Error(`batchGet HTTP ${batchRes.status}`);
-        }
-      } catch (e) {
-        // Fallback: buscar individualmente
-        [peopleData, accountsData, transactionsData, dashboardData, insightsData] = await Promise.all([
-          fetchSheetData(GOOGLE_SHEETS_CONFIG.SHEETS.PEOPLE),
-          fetchSheetData(GOOGLE_SHEETS_CONFIG.SHEETS.ACCOUNTS),
-          fetchSheetData(GOOGLE_SHEETS_CONFIG.SHEETS.TRANSACTIONS),
-          fetchSheetData(GOOGLE_SHEETS_CONFIG.SHEETS.DASHBOARD),
-          fetchSheetData(GOOGLE_SHEETS_CONFIG.SHEETS.AI_INSIGHTS),
-        ]);
-      }
-
-      // Aliases por aba para tolerar variações de cabeçalho
-      const peopleAliases = {
-        link_id: ['link_id', 'link', 'owner_id'],
-        person_alias: ['person_alias', 'alias', 'apelido'],
-        first_name: ['first_name', 'nome'],
-        last_name: ['last_name', 'sobrenome'],
-        email: ['email'],
-        phone: ['phone', 'telefone']
+      
+      // Processar dados reais
+      const convertedData = {
+        people: parseSheetData(result.valueRanges[0]?.values || [], 'People') as unknown as Person[],
+        accounts: parseSheetData(result.valueRanges[1]?.values || [], 'Accounts') as unknown as Account[],
+        transactions: parseSheetData(result.valueRanges[2]?.values || [], 'Transactions') as unknown as Transaction[],
+        dashboard: parseSheetData(result.valueRanges[3]?.values || [], 'Dashboard') as unknown as Dashboard[],
+        insights: parseSheetData(result.valueRanges[4]?.values || [], 'AI_Insights') as unknown as Insight[],
       };
-
-      const accountsAliases = {
-        account_id: ['account_id', 'id', 'id_conta'],
-        link_id: ['link_id', 'link', 'owner_id'],
-        account_name: ['account_name', 'nome_conta'],
-        institution_name: ['institution_name', 'banco'],
-        balance_current: ['balance_current', 'saldo', 'saldo_atual'],
-        currency: ['currency', 'moeda'],
-        liability_outstanding: ['liability_outstanding', 'passivo', 'dividas'],
-        funds_total: ['funds_total', 'ativos', 'investimentos'],
-        account_type: ['account_type','type','tipo','classificacao','classification','role'],
-        is_liability: ['is_liability','liability']
-      };
-
-      const transactionsAliases = {
-        transaction_id: ['transaction_id', 'id', 'id_transacao'],
-        link_id: ['link_id', 'link', 'owner_id'],
-        account_id: ['account_id','conta','id_conta','account'],
-        amount: ['amount', 'valor'],
-        description: ['description', 'descricao'],
-        category: ['category', 'categoria'],
-        value_date: ['value_date', 'data', 'date'],
-        posted_date: ['posted_date', 'data_postagem'],
-        flow: ['flow','direction','transaction_type','tipo','nature'],
-        merchant: ['merchant','estabelecimento']
-      };
-
-      const dashboardAliases = {
-        link_id: ['link_id', 'link', 'owner_id'],
-        total_balance: ['total_balance', 'saldo_total'],
-        gasto_mes_atual: ['gasto_mes_atual', 'gastos_mes_atual'],
-        gasto_mes_anterior: ['gasto_mes_anterior', 'gastos_mes_anterior'],
-        variacao_percentual: ['variacao_percentual', 'variacao_%'],
-        total_transactions: ['total_transactions', 'qtd_transacoes'],
-        inflow_sum: ['inflow_sum', 'entradas'],
-        outflow_sum: ['outflow_sum', 'saidas'],
-        net_flow: ['net_flow', 'fluxo_liquido']
-      };
-
-      const insightsAliases = {
-        insight_id: ['insight_id', 'id'],
-        link_id: ['link_id', 'link', 'owner_id'],
-        source_from: ['source_from'],
-        source_to: ['source_to'],
-        generated_at: ['generated_at', 'data_geracao'],
-        title: ['title', 'titulo'],
-        insight: ['insight', 'texto'],
-        category: ['category', 'categoria'],
-        priority: ['priority', 'prioridade'],
-        action: ['action', 'acao'],
-        confidence: ['confidence', 'confianca'],
-        metrics_json: ['metrics_json', 'metricas_json'],
-        model: ['model', 'modelo'],
-        temperature: ['temperature']
-      };
-
-      // Parse dos dados com aliases e normalização
-      const people = parseSheetDataFlexible(peopleData, peopleAliases).map(p => ({
-        link_id: String(p.link_id || ''),
-        person_alias: String(p.person_alias || p.first_name || ''),
-        first_name: String(p.first_name || ''),
-        last_name: String(p.last_name || ''),
-        email: String(p.email || ''),
-        phone: String(p.phone || ''),
-      }));
-
-      const accounts = parseSheetDataFlexible(accountsData, accountsAliases).map(a => {
-        const account_type = String(a.account_type || '').trim();
-        const is_liability_flag = toBool(a.is_liability);
-        const nameN = normalize(a.account_name);
-        const instN = normalize(a.institution_name);
-        const typeN = normalize(account_type);
-        const balance_current = parseNumber(a.balance_current);
-        const liability_outstanding = parseNumber(a.liability_outstanding);
-        const heuristicLiability = typeN.includes('liab') || typeN.includes('passiv') || typeN.includes('cartao')
-          || nameN.includes('visa') || nameN.includes('master') || nameN.includes('cartao')
-          || instN.includes('visa') || instN.includes('master') || instN.includes('cartao')
-          || balance_current < 0;
-        const is_liability_account = is_liability_flag || heuristicLiability || liability_outstanding > 0;
-
-        return {
-          account_id: String(a.account_id || ''),
-          link_id: String(a.link_id || ''),
-          account_name: String(a.account_name || ''),
-          institution_name: String(a.institution_name || ''),
-          balance_current,
-          currency: String(a.currency || 'BRL'),
-          liability_outstanding,
-          funds_total: parseNumber(a.funds_total),
-          account_type,
-          is_liability: is_liability_flag,
-          is_liability_account,
-        } as Account;
-      });
-
-      const transactions = parseSheetDataFlexible(transactionsData, transactionsAliases).map(t => {
-        const rawFlow = normalize(t.flow);
-        let flow: 'inflow' | 'outflow' | undefined = undefined;
-        if (rawFlow.includes('in') || rawFlow.includes('entrada') || rawFlow.includes('receit') || rawFlow.includes('credit')) flow = 'inflow';
-        if (rawFlow.includes('out') || rawFlow.includes('saida') || rawFlow.includes('despes') || rawFlow.includes('debit')) flow = 'outflow';
-        const amt = parseNumber(t.amount);
-        const signedAmount = flow === 'outflow' ? -Math.abs(amt) : Math.abs(amt);
-        return {
-          transaction_id: String(t.transaction_id || ''),
-          link_id: String(t.link_id || ''),
-          account_id: t.account_id ? String(t.account_id) : undefined,
-          amount: signedAmount,
-          description: String(t.description || ''),
-          category: String(t.category || ''),
-          value_date: parseDate(t.value_date),
-          posted_date: parseDate(t.posted_date),
-          flow,
-          merchant: String(t.merchant || ''),
-        } as Transaction;
-      });
-
-      const dashboard = parseSheetDataFlexible(dashboardData, dashboardAliases).map(d => ({
-        link_id: String(d.link_id || ''),
-        total_balance: parseNumber(d.total_balance),
-        gasto_mes_atual: parseNumber(d.gasto_mes_atual),
-        gasto_mes_anterior: parseNumber(d.gasto_mes_anterior),
-        variacao_percentual: parseNumber(d.variacao_percentual),
-        total_transactions: parseNumber(d.total_transactions),
-        inflow_sum: parseNumber(d.inflow_sum),
-        outflow_sum: parseNumber(d.outflow_sum),
-        net_flow: parseNumber(d.net_flow),
-      }));
-
-      const insights = parseSheetDataFlexible(insightsData, insightsAliases).map(i => ({
-        insight_id: String(i.insight_id || ''),
-        link_id: String(i.link_id || ''),
-        source_from: String(i.source_from || ''),
-        source_to: String(i.source_to || ''),
-        generated_at: parseDate(i.generated_at),
-        title: String(i.title || ''),
-        insight: String(i.insight || ''),
-        category: String(i.category || ''),
-        priority: (String(i.priority || 'medium') as 'low' | 'medium' | 'high'),
-        action: String(i.action || ''),
-        confidence: parseNumber(i.confidence),
-        metrics_json: String(i.metrics_json || ''),
-        model: String(i.model || ''),
-        temperature: parseNumber(i.temperature),
-        prompt_tokens: parseNumber(i.prompt_tokens),
-        completion_tokens: parseNumber(i.completion_tokens),
-      }));
-
-      const newData = {
-        people,
-        accounts,
-        transactions,
-        dashboard,
-        insights
-      };
-
-      setData(newData);
-      setMemoryCache({ data: newData, timestamp: Date.now() });
-
+      
+      setData(convertedData);
+      setDataSource('google_sheets');
+      setApiKeyValid(true);
+      
       // Selecionar o primeiro owner se não houver seleção
-      if (!selectedOwner && people.length > 0) {
-        setSelectedOwner(people[0].link_id);
+      if (!selectedOwner && convertedData.people.length > 0) {
+        setSelectedOwner(convertedData.people[0].link_id);
       }
-
+      
       if (!opts?.silent) {
         toast({
-          title: "Dados atualizados",
-          description: `(${people.length} pessoas, ${accounts.length} contas, ${transactions.length} transações)`,
+          title: "Dados carregados",
+          description: "Dados do Google Sheets carregados com sucesso",
         });
       }
+    }
 
     } catch (error) {
-      const errorMessage = handleApiError(error);
-      setError(errorMessage);
+      setError('Erro ao carregar dados');
       toast({
         title: "Erro ao carregar dados",
-        description: "Usando dados de demonstração. Verifique a configuração da API Key.",
+        description: "Verifique a configuração",
         variant: "destructive",
       });
     } finally {
@@ -510,184 +220,278 @@ export const useGoogleSheetsData = () => {
     }
   }, [selectedOwner, toast]);
 
+  // Carregar dados apenas uma vez
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      console.log('Inicializando dados...');
+      fetchAllData();
+    }
+  }, [fetchAllData]); // Adicionado fetchAllData para satisfazer o linter
+
   // Função para obter dados do owner selecionado
-  const getSelectedOwnerData = useCallback(() => {
+  const getSelectedOwnerData = useCallback((): OwnerData | null => {
     if (!selectedOwner) return null;
 
-    const person = data.people.find(p => p.link_id === selectedOwner);
-    const ownerAccounts = data.accounts.filter(a => a.link_id === selectedOwner);
-    const ownerTransactions = data.transactions.filter(t => t.link_id === selectedOwner);
-    const ownerDashboard = data.dashboard.find(d => d.link_id === selectedOwner);
-    const ownerInsights = data.insights.filter(i => i.link_id === selectedOwner);
+    const person = data.people.find(p => p.link_id === selectedOwner) || null;
+    const accounts = data.accounts.filter(a => a.link_id === selectedOwner);
+    const transactions = data.transactions.filter(t => t.link_id === selectedOwner);
+    const dashboard = data.dashboard.find(d => d.link_id === selectedOwner) || null;
+    const insights = data.insights.filter(i => i.link_id === selectedOwner);
 
     return {
       person,
-      accounts: ownerAccounts,
-      transactions: ownerTransactions,
-      dashboard: ownerDashboard,
-      insights: ownerInsights
+      accounts,
+      transactions,
+      dashboard,
+      insights
     };
   }, [selectedOwner, data]);
 
   // Função para calcular métricas do owner selecionado
-  const getSelectedOwnerMetrics = useCallback(() => {
+  const getSelectedOwnerMetrics = useCallback((): OwnerMetrics => {
     const ownerData = getSelectedOwnerData();
-    if (!ownerData || !ownerData.dashboard) return null;
+    if (!ownerData) {
+      return {
+        monthlyIncome: 0,
+        monthlyExpenses: 0,
+        savingsRate: 0,
+        topCategories: [],
+        totalAssets: 0,
+        totalLiabilities: 0,
+        netWorth: 0,
+      };
+    }
 
-    const { accounts, transactions } = ownerData;
-    
-    // Calcular totais das contas (ativos x passivos)
-    const totalAssets = accounts
-      .filter(acc => !acc.is_liability_account)
-      .reduce((sum, acc) => sum + acc.balance_current, 0);
-    const totalLiabilities = accounts
-      .filter(acc => acc.is_liability_account)
-      .reduce((sum, acc) => sum + (acc.liability_outstanding && acc.liability_outstanding > 0 ? acc.liability_outstanding : Math.abs(Math.min(acc.balance_current, 0))), 0);
-    const totalBalance = totalAssets - totalLiabilities;
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
 
-    // Calcular categorias de gastos
-    const categoryMap = new Map<string, number>();
-    transactions.forEach(t => {
-      if (t.amount < 0) {
-        const category = t.category || 'uncategorized';
-        categoryMap.set(category, (categoryMap.get(category) || 0) + Math.abs(t.amount));
-      }
+    const monthlyTransactions = ownerData.transactions.filter(t => {
+      const transactionDate = new Date(t.value_date);
+      return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear;
     });
 
-    const topCategories = Array.from(categoryMap.entries())
+    const monthlyIncome = monthlyTransactions
+      .filter(t => t.flow === 'inflow' || t.amount > 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const monthlyExpenses = monthlyTransactions
+      .filter(t => t.flow === 'outflow' || t.amount < 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
+
+    // Top categorias
+    const categoryTotals: Record<string, number> = {};
+    monthlyTransactions.forEach(t => {
+      const category = t.category || 'Sem categoria';
+      categoryTotals[category] = (categoryTotals[category] || 0) + Math.abs(t.amount);
+    });
+
+    const topCategories = Object.entries(categoryTotals)
       .map(([category, amount]) => ({ category, amount }))
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 5);
 
-    // Calcular entradas/saídas do mês atual a partir das transações
-    const now = new Date();
-    const currentMonth = now.getUTCMonth();
-    const currentYear = now.getUTCFullYear();
-    const txThisMonth = transactions.filter(t => {
-      if (!t.value_date) return false;
-      const d = new Date(t.value_date);
-      return d.getUTCFullYear() === currentYear && d.getUTCMonth() === currentMonth;
-    });
-    const monthlyIncome = txThisMonth.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
-    const monthlyExpenses = Math.abs(txThisMonth.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0));
-    const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
+    // Assets e Liabilities
+    const totalAssets = ownerData.accounts
+      .filter(a => !a.is_liability)
+      .reduce((sum, a) => sum + (a.balance_current || 0), 0);
+
+    const totalLiabilities = ownerData.accounts
+      .filter(a => a.is_liability)
+      .reduce((sum, a) => sum + Math.abs(a.balance_current || 0), 0);
+
+    const netWorth = totalAssets - totalLiabilities;
 
     return {
-      totalBalance,
       monthlyIncome,
       monthlyExpenses,
       savingsRate,
+      topCategories,
       totalAssets,
       totalLiabilities,
-      topCategories,
-      totalTransactions: txThisMonth.length,
-      netFlow: monthlyIncome - monthlyExpenses,
-      variation: 0
+      netWorth,
     };
   }, [getSelectedOwnerData]);
 
-  // Versão parametrizada por mês/ano
-  const getSelectedOwnerMetricsFor = useCallback((month: number, year: number) => {
+  // Função para obter métricas para um período específico
+  const getSelectedOwnerMetricsFor = useCallback((month: number, year: number): OwnerMetrics => {
     const ownerData = getSelectedOwnerData();
-    if (!ownerData) return null;
+    if (!ownerData) {
+      return {
+        monthlyIncome: 0,
+        monthlyExpenses: 0,
+        savingsRate: 0,
+        topCategories: [],
+        totalAssets: 0,
+        totalLiabilities: 0,
+        netWorth: 0,
+      };
+    }
 
-    const { accounts, transactions } = ownerData;
-
-    const totalAssets = accounts
-      .filter(acc => !acc.is_liability_account)
-      .reduce((sum, acc) => sum + acc.balance_current, 0);
-    const totalLiabilities = accounts
-      .filter(acc => acc.is_liability_account)
-      .reduce((sum, acc) => sum + (acc.liability_outstanding && acc.liability_outstanding > 0 ? acc.liability_outstanding : Math.abs(Math.min(acc.balance_current, 0))), 0);
-    const totalBalance = totalAssets - totalLiabilities;
-
-    const txThisPeriod = transactions.filter(t => {
-      if (!t.value_date) return false;
-      const d = new Date(t.value_date);
-      return d.getUTCFullYear() === year && d.getUTCMonth() === month;
+    const monthlyTransactions = ownerData.transactions.filter(t => {
+      const transactionDate = new Date(t.value_date);
+      return transactionDate.getMonth() === month && transactionDate.getFullYear() === year;
     });
-    const monthlyIncome = txThisPeriod.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
-    const monthlyExpenses = Math.abs(txThisPeriod.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0));
+
+    const monthlyIncome = monthlyTransactions
+      .filter(t => t.flow === 'inflow' || t.amount > 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const monthlyExpenses = monthlyTransactions
+      .filter(t => t.flow === 'outflow' || t.amount < 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
     const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
 
-    const categoryMap = new Map<string, number>();
-    txThisPeriod.forEach(t => {
-      if (t.amount < 0) {
-        const category = t.category || 'uncategorized';
-        categoryMap.set(category, (categoryMap.get(category) || 0) + Math.abs(t.amount));
-      }
+    // Top categorias
+    const categoryTotals: Record<string, number> = {};
+    monthlyTransactions.forEach(t => {
+      const category = t.category || 'Sem categoria';
+      categoryTotals[category] = (categoryTotals[category] || 0) + Math.abs(t.amount);
     });
-    const topCategories = Array.from(categoryMap.entries())
+
+    const topCategories = Object.entries(categoryTotals)
       .map(([category, amount]) => ({ category, amount }))
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 5);
 
+    // Assets e Liabilities
+    const totalAssets = ownerData.accounts
+      .filter(a => !a.is_liability)
+      .reduce((sum, a) => sum + (a.balance_current || 0), 0);
+
+    const totalLiabilities = ownerData.accounts
+      .filter(a => a.is_liability)
+      .reduce((sum, a) => sum + Math.abs(a.balance_current || 0), 0);
+
+    const netWorth = totalAssets - totalLiabilities;
+
     return {
-      totalBalance,
       monthlyIncome,
       monthlyExpenses,
       savingsRate,
+      topCategories,
       totalAssets,
       totalLiabilities,
-      topCategories,
-      totalTransactions: txThisPeriod.length,
-      netFlow: monthlyIncome - monthlyExpenses,
-      variation: 0,
+      netWorth,
     };
   }, [getSelectedOwnerData]);
 
-  const getSelectedOwnerTransactionsFor = useCallback((month: number, year: number) => {
+  // Função para obter transações para um período específico
+  const getSelectedOwnerTransactionsFor = useCallback((month: number, year: number): Transaction[] => {
     const ownerData = getSelectedOwnerData();
-    if (!ownerData) return [] as Transaction[];
+    if (!ownerData) return [];
+
     return ownerData.transactions.filter(t => {
-      if (!t.value_date) return false;
-      const d = new Date(t.value_date);
-      return d.getUTCFullYear() === year && d.getUTCMonth() === month;
+      const transactionDate = new Date(t.value_date);
+      return transactionDate.getMonth() === month && transactionDate.getFullYear() === year;
     });
   }, [getSelectedOwnerData]);
 
-  const getSelectedOwnerAccountsSnapshot = useCallback(() => {
+  // Função para obter métricas YTD
+  const getSelectedOwnerMetricsYTD = useCallback((year: number): OwnerMetrics => {
     const ownerData = getSelectedOwnerData();
-    if (!ownerData) return [] as Account[];
-    return ownerData.accounts;
+    if (!ownerData) {
+      return {
+        monthlyIncome: 0,
+        monthlyExpenses: 0,
+        savingsRate: 0,
+        topCategories: [],
+        totalAssets: 0,
+        totalLiabilities: 0,
+        netWorth: 0,
+      };
+    }
+
+    const ytdTransactions = ownerData.transactions.filter(t => {
+      const transactionDate = new Date(t.value_date);
+      return transactionDate.getFullYear() === year;
+    });
+
+    const monthlyIncome = ytdTransactions
+      .filter(t => t.flow === 'inflow' || t.amount > 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const monthlyExpenses = ytdTransactions
+      .filter(t => t.flow === 'outflow' || t.amount < 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
+
+    // Top categorias
+    const categoryTotals: Record<string, number> = {};
+    ytdTransactions.forEach(t => {
+      const category = t.category || 'Sem categoria';
+      categoryTotals[category] = (categoryTotals[category] || 0) + Math.abs(t.amount);
+    });
+
+    const topCategories = Object.entries(categoryTotals)
+      .map(([category, amount]) => ({ category, amount }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5);
+
+    // Assets e Liabilities
+    const totalAssets = ownerData.accounts
+      .filter(a => !a.is_liability)
+      .reduce((sum, a) => sum + (a.balance_current || 0), 0);
+
+    const totalLiabilities = ownerData.accounts
+      .filter(a => a.is_liability)
+      .reduce((sum, a) => sum + Math.abs(a.balance_current || 0), 0);
+
+    const netWorth = totalAssets - totalLiabilities;
+
+    return {
+      monthlyIncome,
+      monthlyExpenses,
+      savingsRate,
+      topCategories,
+      totalAssets,
+      totalLiabilities,
+      netWorth,
+    };
   }, [getSelectedOwnerData]);
 
-  // Carregar dados na inicialização
-  useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
+  // Função para obter transações YTD
+  const getSelectedOwnerTransactionsYTD = useCallback((year: number): Transaction[] => {
+    const ownerData = getSelectedOwnerData();
+    if (!ownerData) return [];
 
-  // Utilitário para limpar nomes que vierem poluídos com GUIDs/IDs
-  const cleanOwnerText = (text: string | undefined): string => {
-    if (!text) return '';
-    return String(text)
-      // remove GUIDs
-      .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '')
-      // remove múltiplas vírgulas
-      .replace(/,+/g, ' ')
-      // colapsa espaços
-      .replace(/\s+/g, ' ')
-      .trim();
-  };
+    return ownerData.transactions.filter(t => {
+      const transactionDate = new Date(t.value_date);
+      return transactionDate.getFullYear() === year;
+    });
+  }, [getSelectedOwnerData]);
+
+  // Lista de owners
+  const owners = data.people.map(p => ({
+    id: p.link_id,
+    name: p.person_alias || `${p.first_name} ${p.last_name}`.trim(),
+    alias: p.person_alias,
+    fullName: `${p.first_name} ${p.last_name}`.trim(),
+  }));
 
   return {
+    // Estados
     data,
     selectedOwner,
     setSelectedOwner,
     isLoading,
     error,
     apiKeyValid,
+    dataSource,
+    isUsingMockData,
+    owners,
+
+    // Funções
     fetchAllData,
     getSelectedOwnerData,
     getSelectedOwnerMetrics,
     getSelectedOwnerMetricsFor,
     getSelectedOwnerTransactionsFor,
-    getSelectedOwnerAccountsSnapshot,
-    owners: data.people.map(p => {
-      const fullName = cleanOwnerText(`${p.first_name || ''} ${p.last_name || ''}`);
-      const alias = cleanOwnerText(p.person_alias);
-      const name = fullName || alias || 'Usuário';
-      return { id: String(p.link_id), name };
-    })
+    getSelectedOwnerMetricsYTD,
+    getSelectedOwnerTransactionsYTD,
   };
 };
