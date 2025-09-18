@@ -2,11 +2,14 @@ import { Layout } from '@/components/Layout';
 import { FinancialCard } from '@/components/FinancialCard';
 import { AccountsOverview } from '@/components/AccountsOverview';
 import { OwnerSelector } from '@/components/OwnerSelector';
+import HeaderFilters from '@/components/HeaderFilters';
 import { AIInsights } from '@/components/AIInsights';
 import { DataStatus } from '@/components/DataStatus';
 // Diagnósticos movidos para página separada
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
 import { useGoogleSheetsData } from '@/hooks/useGoogleSheetsData';
 import { formatCurrency } from '@/lib/mockData';
 import { TrendingUp, TrendingDown, DollarSign, PiggyBank, Upload, BarChart3 } from 'lucide-react';
@@ -20,11 +23,15 @@ const Index = () => {
     fetchAllData,
     getSelectedOwnerData,
     getSelectedOwnerMetrics,
+    getSelectedOwnerMetricsFor,
+    getSelectedOwnerTransactionsFor,
     owners
   } = useGoogleSheetsData();
 
   const ownerData = getSelectedOwnerData();
-  const ownerMetrics = getSelectedOwnerMetrics();
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getUTCMonth());
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getUTCFullYear());
+  const ownerMetrics = getSelectedOwnerMetricsFor(selectedMonth, selectedYear);
   
   // Verificar se está usando dados mockados
   const isUsingMockData = apiKeyValid === false;
@@ -52,13 +59,21 @@ const Index = () => {
 
         {/* Diagnósticos removidos do dashboard (veja /diagnostico) */}
 
-        {/* Owner Selector */}
-        <OwnerSelector
+        {/* Header premium com chips/pílulas */}
+        <HeaderFilters
           owners={owners}
           selectedOwner={selectedOwner}
           onOwnerChange={setSelectedOwner}
-          onRefresh={fetchAllData}
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+          onRefresh={() => fetchAllData({ force: true })}
           isLoading={isLoading}
+          monthlyIncome={ownerMetrics?.monthlyIncome || 0}
+          monthlyExpenses={ownerMetrics?.monthlyExpenses || 0}
+          netFlow={(ownerMetrics?.monthlyIncome || 0) - (ownerMetrics?.monthlyExpenses || 0)}
+          savingsRate={ownerMetrics?.savingsRate || 0}
         />
 
         {/* Quick Actions */}
@@ -77,7 +92,7 @@ const Index = () => {
         {ownerMetrics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <FinancialCard
-              title="Saldo Total"
+              title="Patrimônio Líquido"
               value={formatCurrency(ownerMetrics.totalBalance)}
               subtitle={`${ownerMetrics.monthlyExpenses === 0 ? 'Sem gastos registrados' : `+${formatCurrency(ownerMetrics.monthlyIncome - ownerMetrics.monthlyExpenses)} este mês`}`}
               icon={<DollarSign className="w-5 h-5 text-primary" />}
@@ -118,7 +133,7 @@ const Index = () => {
         {ownerData && (
           <div>
             <AccountsOverview 
-              accounts={ownerData.accounts}
+              accounts={ownerData.accounts.filter(a => !(a.liability_outstanding && a.liability_outstanding > 0))}
               totalAssets={ownerMetrics?.totalAssets || 0}
               totalLiabilities={ownerMetrics?.totalLiabilities || 0}
               totalBalance={ownerMetrics?.totalBalance || 0}
@@ -166,7 +181,7 @@ const Index = () => {
           )}
 
           {/* Recent Transactions */}
-          {ownerData && (
+          {ownerData && ownerMetrics && (
             <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
@@ -178,7 +193,7 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {ownerData.transactions.slice(0, 5).map((transaction) => (
+                {getSelectedOwnerTransactionsFor(selectedMonth, selectedYear).slice(0, 5).map((transaction) => (
                   <div key={transaction.transaction_id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
                     <div className="flex-1">
                       <div className="font-medium text-sm">{transaction.description}</div>
