@@ -1,7 +1,12 @@
+import { GOOGLE_SHEETS } from './env';
+
 // Configuração para integração com Google Sheets
 export const GOOGLE_SHEETS_CONFIG = {
   // ID da planilha (extraído da URL)
-  SPREADSHEET_ID: '1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps',
+  SPREADSHEET_ID: GOOGLE_SHEETS.SPREADSHEET_ID,
+  
+  // URL da planilha
+  SPREADSHEET_URL: GOOGLE_SHEETS.URL,
   
   // Nomes das abas
   SHEETS: {
@@ -14,11 +19,10 @@ export const GOOGLE_SHEETS_CONFIG = {
   },
   
   // URL base da API do Google Sheets
-  API_BASE_URL: 'https://sheets.googleapis.com/v4/spreadsheets',
+  API_BASE_URL: GOOGLE_SHEETS.API_BASE_URL,
   
-  // Para desenvolvimento, você pode usar uma API key
-  // Em produção, use autenticação OAuth2
-  API_KEY: import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || 'YOUR_API_KEY_HERE',
+  // API Key do Google Sheets
+  API_KEY: GOOGLE_SHEETS.API_KEY,
   
   // Configurações de cache
   CACHE_DURATION: 5 * 60 * 1000, // 5 minutos
@@ -31,10 +35,21 @@ export const GOOGLE_SHEETS_CONFIG = {
 // Função para construir URLs da API
 export const buildSheetUrl = (sheetName: string, range?: string) => {
   const { API_BASE_URL, SPREADSHEET_ID, API_KEY } = GOOGLE_SHEETS_CONFIG;
-  const rangeParam = range ? `/${range}` : '';
+  const safeSheetName = encodeURIComponent(sheetName);
+  const rangeParam = range ? `/${encodeURIComponent(range)}` : '';
   const keyParam = API_KEY ? `?key=${API_KEY}` : '';
   
-  return `${API_BASE_URL}/${SPREADSHEET_ID}/values/${sheetName}${rangeParam}${keyParam}`;
+  return `${API_BASE_URL}/${SPREADSHEET_ID}/values/${safeSheetName}${rangeParam}${keyParam}`;
+};
+
+// BatchGet para reduzir número de requisições
+export const buildBatchGetUrl = (ranges: string[]) => {
+  const { API_BASE_URL, SPREADSHEET_ID, API_KEY } = GOOGLE_SHEETS_CONFIG;
+  const rangeParams = ranges
+    .map((r) => `ranges=${encodeURIComponent(r)}`)
+    .join('&');
+  const keyParam = API_KEY ? `&key=${API_KEY}` : '';
+  return `${API_BASE_URL}/${SPREADSHEET_ID}/values:batchGet?${rangeParams}${keyParam}`;
 };
 
 // Função para extrair ID da planilha de uma URL

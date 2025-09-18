@@ -25,8 +25,8 @@ export const ConnectionTester = () => {
       const url = buildSheetUrl('People');
       console.log('Testando URL:', url);
       
-      const response = await fetch(url);
-      const data = await response.json();
+      const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const data = await response.json().catch(() => ({}));
       
       if (response.ok) {
         setTestResult({
@@ -43,7 +43,7 @@ export const ConnectionTester = () => {
         setTestResult({
           status: 'error',
           message: `Erro ${response.status}: ${data.error?.message || 'Erro desconhecido'}`,
-          details: getErrorDetails(response.status, data)
+          details: `${getErrorDetails(response.status, data)}\nURL: ${url}`
         });
         
         toast({
@@ -72,7 +72,7 @@ export const ConnectionTester = () => {
   const getErrorDetails = (status: number, data: any): string => {
     switch (status) {
       case 400:
-        return 'Dados inválidos enviados para a API. Verifique a URL da planilha.';
+        return '400 Bad Request: Verifique ID da planilha, nome da aba e parâmetros.';
       case 401:
         return 'API Key inválida ou sem permissões. Verifique as configurações.';
       case 403:

@@ -32,7 +32,7 @@ const Transactions = () => {
   const categories = ['all', ...Array.from(new Set(transactions.map(t => t.category)))];
   
   const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (transaction.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || transaction.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -148,24 +148,24 @@ const Transactions = () => {
             <div className="space-y-3">
               {filteredTransactions.map((transaction) => (
                 <div
-                  key={transaction.id}
+                  key={transaction.transaction_id}
                   className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors cursor-pointer"
                 >
                   <div className="flex-1">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${transaction.type === 'income' ? 'bg-success' : 'bg-destructive'}`} />
+                      <div className={`w-3 h-3 rounded-full ${transaction.amount >= 0 ? 'bg-success' : 'bg-destructive'}`} />
                       <div>
                         <div className="font-medium text-foreground">{transaction.description}</div>
                         <div className="text-sm text-muted-foreground">
-                          {transaction.merchant && `${transaction.merchant} • `}
-                          {new Date(transaction.date).toLocaleDateString('pt-BR')}
+                          {transaction.category && `${transaction.category} • `}
+                          {transaction.value_date ? new Date(transaction.value_date).toLocaleDateString('pt-BR') : ''}
                         </div>
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-4">
-                    <Badge variant={transaction.type === 'income' ? 'default' : 'secondary'} className="text-xs">
+                    <Badge variant={transaction.amount >= 0 ? 'default' : 'secondary'} className="text-xs">
                       {transaction.category}
                     </Badge>
                     <div className={`font-bold text-lg ${transaction.amount >= 0 ? 'text-success' : 'text-destructive'}`}>

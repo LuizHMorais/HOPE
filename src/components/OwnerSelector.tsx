@@ -3,12 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -69,22 +71,38 @@ export const OwnerSelector = ({
           </div>
 
           <div className="flex items-center space-x-2">
-            {/* Seletor de Owner */}
-            <Select value={selectedOwner} onValueChange={onOwnerChange}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Selecionar usuário" />
-              </SelectTrigger>
-              <SelectContent>
-                {owners.map((owner) => (
-                  <SelectItem key={owner.id} value={owner.id}>
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4" />
-                      <span>{owner.name}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Seletor com busca */}
+            <Popover open={isOpen} onOpenChange={setIsOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={isOpen} className="w-56 justify-between">
+                  {selectedOwnerData ? selectedOwnerData.name : 'Selecionar usuário...'}
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-0">
+                <Command>
+                  <CommandInput placeholder="Buscar usuário pelo nome..." />
+                  <CommandEmpty>Nenhum usuário encontrado.</CommandEmpty>
+                  <CommandList>
+                    <CommandGroup>
+                      {owners.map((owner) => (
+                        <CommandItem
+                          key={owner.id}
+                          value={owner.name}
+                          onSelect={() => {
+                            onOwnerChange(owner.id);
+                            setIsOpen(false);
+                          }}
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          {owner.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
 
             {/* Botão de Refresh */}
             <Button

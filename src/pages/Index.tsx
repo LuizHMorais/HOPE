@@ -1,11 +1,10 @@
 import { Layout } from '@/components/Layout';
 import { FinancialCard } from '@/components/FinancialCard';
 import { AccountsOverview } from '@/components/AccountsOverview';
-import { GoogleSheetsIntegration } from '@/components/GoogleSheetsIntegration';
 import { OwnerSelector } from '@/components/OwnerSelector';
 import { AIInsights } from '@/components/AIInsights';
 import { DataStatus } from '@/components/DataStatus';
-import { ConnectionTester } from '@/components/ConnectionTester';
+// Diagnósticos movidos para página separada
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGoogleSheetsData } from '@/hooks/useGoogleSheetsData';
@@ -51,16 +50,7 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Connection Tester */}
-        <ConnectionTester />
-
-        {/* Data Status */}
-        <DataStatus
-          isUsingMockData={isUsingMockData}
-          apiKeyValid={apiKeyValid}
-          onRefresh={fetchAllData}
-          isLoading={isLoading}
-        />
+        {/* Diagnósticos removidos do dashboard (veja /diagnostico) */}
 
         {/* Owner Selector */}
         <OwnerSelector
@@ -124,25 +114,22 @@ const Index = () => {
           </div>
         )}
 
-        {/* Accounts Overview and Google Sheets Integration */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Accounts Overview */}
-          {ownerData && (
-            <div>
-              <AccountsOverview 
-                accounts={ownerData.accounts}
-                totalAssets={ownerMetrics?.totalAssets || 0}
-                totalLiabilities={ownerMetrics?.totalLiabilities || 0}
-                totalBalance={ownerMetrics?.totalBalance || 0}
-              />
-            </div>
-          )}
-
-          {/* Google Sheets Integration */}
+        {/* Accounts Overview */}
+        {ownerData && (
           <div>
-            <GoogleSheetsIntegration />
+            <AccountsOverview 
+              accounts={ownerData.accounts}
+              totalAssets={ownerMetrics?.totalAssets || 0}
+              totalLiabilities={ownerMetrics?.totalLiabilities || 0}
+              totalBalance={ownerMetrics?.totalBalance || 0}
+              belowTotals={
+                <div className="mt-2">
+                  <AIInsights insights={ownerData.insights} isLoading={isLoading} />
+                </div>
+              }
+            />
           </div>
-        </div>
+        )}
 
         {/* Top Categories and Recent Transactions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -156,20 +143,24 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {ownerMetrics.topCategories.map((category, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full bg-primary opacity-${100 - index * 20}`} />
-                      <span className="text-sm font-medium">{category.category}</span>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold">{formatCurrency(category.amount)}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {((category.amount / ownerMetrics.monthlyExpenses) * 100).toFixed(1)}%
+                {ownerMetrics.topCategories.length > 0 ? (
+                  ownerMetrics.topCategories.map((category, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-3 h-3 rounded-full bg-primary" style={{ opacity: Math.max(0.3, 1 - index * 0.15) }} />
+                        <span className="text-sm font-medium">{category.category}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold">{formatCurrency(category.amount)}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {ownerMetrics.monthlyExpenses > 0 ? `${((category.amount / ownerMetrics.monthlyExpenses) * 100).toFixed(1)}%` : '—'}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <div className="text-sm text-muted-foreground">Sem gastos categorizados no período.</div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -205,13 +196,7 @@ const Index = () => {
           )}
         </div>
 
-        {/* AI Insights */}
-        {ownerData && (
-          <AIInsights 
-            insights={ownerData.insights}
-            isLoading={isLoading}
-          />
-        )}
+        {/* AI Insights movido para acima das contas */}
       </div>
     </Layout>
   );
