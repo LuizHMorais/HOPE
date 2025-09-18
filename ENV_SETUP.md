@@ -8,7 +8,7 @@ Na raiz do projeto HOPE, crie um arquivo chamado `.env.local` com o seguinte con
 
 ```bash
 # Configuração da API do Google Sheets
-VITE_GOOGLE_SHEETS_API_KEY=432017704613-dl1qo0bdgtkhkl6phdprqjs9mqq6nuin.apps.googleusercontent.com
+VITE_GOOGLE_SHEETS_API_KEY=
 ### 2. Estrutura do arquivo
 
 ```
