@@ -1,6 +1,93 @@
 // Dados mockados baseados na estrutura real da planilha Google Sheets
 // Estes dados são usados quando a API Key não está disponível ou falha
 
+// ========================================
+// INTERFACES E TIPOS
+// ========================================
+
+export interface Transaction {
+  id: string;
+  date: string;
+  description: string;
+  amount: number;
+  category: string;
+  subcategory: string;
+  type: 'income' | 'expense';
+  merchant?: string;
+}
+
+export interface FinancialSummary {
+  totalBalance: number;
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  savingsRate: number;
+  topCategories: { category: string; amount: number; percentage: number }[];
+}
+
+export interface PersonData {
+  alias: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+export interface AccountData {
+  account_id: string;
+  account_name: string;
+  institution_name: string;
+  balance_current: number;
+  currency: string;
+  is_liability?: boolean;
+}
+
+export interface TransactionsSummary {
+  count: number;
+  inflow_sum: number;
+  outflow_sum: number;
+  net_flow: number;
+  top_categories: { category: string; total: number }[];
+}
+
+export interface AccountsSummary {
+  count: number;
+  assets_total: number;
+  liabilities_total: number;
+  balance_total: number;
+  top_accounts: AccountData[];
+}
+
+export interface MetricsData {
+  link_id: string;
+  owner_id: string;
+  person: PersonData;
+  window: {
+    from: string;
+    to: string;
+  };
+  accounts_summary: AccountsSummary;
+  transactions_summary: TransactionsSummary;
+  currency: string;
+}
+
+export interface AIInsight {
+  insight_id: string;
+  link_id: string;
+  source_from: string;
+  source_to: string;
+  generated_at: string;
+  title: string;
+  insight: string;
+  category: string;
+  priority: 'low' | 'medium' | 'high';
+  action: string;
+  confidence: number;
+  metrics_json: MetricsData;
+  model: string;
+  temperature: number;
+  prompt_tokens: number;
+  completion_tokens: number;
+}
+
 export const mockPeopleData = [
   {
     link_id: "791405df-8b19-49d3-bdde-ad252157d91a",
@@ -264,4 +351,52 @@ export const getMockSheetData = async (sheetName: string) => {
     default:
       return [];
   }
+};
+
+// ========================================
+// FUNÇÕES UTILITÁRIAS
+// ========================================
+
+export const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  }).format(value);
+};
+
+export const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    'income': 'text-success',
+    'concentração por conta': 'text-primary',
+    'categorias de gastos': 'text-warning',
+    'despesas': 'text-destructive',
+    'fluxo de caixa': 'text-blue-500',
+    'investments': 'text-purple-500',
+    'spending': 'text-orange-500',
+    'qualidade de dados': 'text-muted-foreground',
+    'online platforms & leisure': 'text-purple-500',
+    'investments & savings': 'text-success',
+    'withdrawal & atm': 'text-warning',
+    'taxes': 'text-destructive',
+    'uncategorized': 'text-muted-foreground'
+  };
+  return colors[category] || colors['uncategorized'];
+};
+
+export const getPriorityColor = (priority: string) => {
+  const colors: Record<string, string> = {
+    'low': 'text-success',
+    'medium': 'text-warning',
+    'high': 'text-destructive'
+  };
+  return colors[priority] || colors['low'];
+};
+
+export const getPriorityBadgeVariant = (priority: string) => {
+  const variants: Record<string, 'default' | 'secondary' | 'destructive'> = {
+    'low': 'secondary',
+    'medium': 'default',
+    'high': 'destructive'
+  };
+  return variants[priority] || variants['low'];
 };

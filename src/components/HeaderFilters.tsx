@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/command';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, ChevronDown, RefreshCw, User, TrendingUp, TrendingDown, ArrowRightLeft } from 'lucide-react';
-import { formatCurrency } from '@/lib/mockData';
+import { formatCurrency } from '@/data/mockGoogleSheetsData';
 import { cn } from '@/lib/utils';
 
 interface OwnerOption {
@@ -71,7 +71,7 @@ export const HeaderFilters = ({
   const [openPeriod, setOpenPeriod] = useState(false);
 
   const owner = useMemo(() => owners.find(o => o.id === selectedOwner), [owners, selectedOwner]);
-  const ownerName = owner?.name || 'Selecionar usuário';
+  const ownerName = owner?.name || 'Selecionar usuï¿½rio';
   const monthsWithData = useMemo(() => {
     if (!availableMonthsByYear) {
       return [];

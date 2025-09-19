@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AIInsight, getPriorityColor, getPriorityBadgeVariant, getCategoryColor } from '@/lib/mockData';
+import { AIInsight, getPriorityColor, getPriorityBadgeVariant, getCategoryColor } from '@/data/mockGoogleSheetsData';
 import { Brain, Clock, TrendingUp, AlertTriangle, CheckCircle, Target } from 'lucide-react';
 
 interface InsightCardProps {

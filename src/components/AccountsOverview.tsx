@@ -1,7 +1,7 @@
 ﻿import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { AccountData, formatCurrency } from '@/lib/mockData';
+import { AccountData, formatCurrency } from '@/data/mockGoogleSheetsData';
 import { Building2, Wallet, PieChart, AlertTriangle } from 'lucide-react';
 
 interface AccountsOverviewProps {

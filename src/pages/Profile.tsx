@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import HeaderFilters from '@/components/HeaderFilters';
 import { GoogleSheetsIntegration } from '@/components/GoogleSheetsIntegration';
 import { useGoogleSheetsData } from '@/hooks/useGoogleSheetsData';
-import { formatCurrency } from '@/lib/mockData';
+import { formatCurrency } from '@/data/mockGoogleSheetsData';
 import { useState } from 'react';
 import { User, Mail, Phone, CreditCard, TrendingUp, Calendar, Settings, Shield, Activity, DollarSign } from 'lucide-react';
 
