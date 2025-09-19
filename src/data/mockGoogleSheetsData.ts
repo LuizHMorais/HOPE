@@ -1,20 +1,11 @@
 // Dados mockados baseados na estrutura real da planilha Google Sheets
 // Estes dados são usados quando a API Key não está disponível ou falha
 
-// ========================================
-// INTERFACES E TIPOS
-// ========================================
+import type { Person, Account, Transaction, Insight } from '@/types';
 
-export interface Transaction {
-  id: string;
-  date: string;
-  description: string;
-  amount: number;
-  category: string;
-  subcategory: string;
-  type: 'income' | 'expense';
-  merchant?: string;
-}
+// ========================================
+// INTERFACES ESPECÍFICAS PARA MOCK DATA
+// ========================================
 
 export interface FinancialSummary {
   totalBalance: number;

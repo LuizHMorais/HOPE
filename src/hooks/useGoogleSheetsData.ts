@@ -9,24 +9,25 @@ import {
 } from '@/data/mockGoogleSheetsData';
 import { ENV_CONFIG } from '@/config/env';
 import { buildBatchGetUrl } from '@/config/googleSheets';
+import type {
+  Person,
+  Account,
+  Transaction,
+  Dashboard,
+  Insight,
+  OwnerData,
+  OwnerMetrics,
+  RawSheetCell,
+  RawSheetRow,
+  RawSheetValues,
+  RawRecord,
+  RawDataset,
+  GVizColumn,
+  GVizCell,
+  GVizRow,
+  GVizResponse,
+} from '@/types';
 
-type RawSheetCell = string | number | boolean | null | undefined;
-type RawSheetRow = RawSheetCell[];
-type RawSheetValues = RawSheetRow[];
-type RawRecord = Record<string, RawSheetCell>;
-
-type RawDataset = {
-  people: RawRecord[];
-  accounts: RawRecord[];
-  transactions: RawRecord[];
-  dashboard: RawRecord[];
-  insights: RawRecord[];
-};
-
-type GVizColumn = { id?: string | null; label?: string | null };
-type GVizCell = { v?: RawSheetCell | Record<string, unknown> | null; f?: string | null };
-type GVizRow = { c?: (GVizCell | null)[] | null };
-type GVizResponse = { table?: { cols?: (GVizColumn | null)[] | null; rows?: (GVizRow | null)[] | null } };
 
 const parseSheetData = (values: RawSheetValues): RawRecord[] => {
   if (!values || values.length === 0) {
@@ -179,7 +180,7 @@ const detectFlowDirection = (rawFlow: RawSheetCell, amount: number): 'inflow' | 
       return 'inflow';
     }
 
-    if (/(out|saida|saída|despes|debit|pagamento|withdraw|saque)/.test(flowText)) {
+    if (/(out|saida|saï¿½da|despes|debit|pagamento|withdraw|saque)/.test(flowText)) {
       return 'outflow';
     }
   }
@@ -190,85 +191,6 @@ const detectFlowDirection = (rawFlow: RawSheetCell, amount: number): 'inflow' | 
 };
 
 // Tipos simplificados
-export interface Person {
-  link_id: string;
-  person_alias: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone?: string;
-}
-
-export interface Account {
-  account_id: string;
-  link_id: string;
-  account_name: string;
-  institution_name: string;
-  balance_current: number;
-  currency: string;
-  liability_outstanding?: number;
-  funds_total?: number;
-  account_type?: string;
-  is_liability?: boolean;
-}
-
-export interface Transaction {
-  transaction_id: string;
-  link_id: string;
-  account_id?: string;
-  amount: number;
-  description: string;
-  category: string;
-  value_date: string;
-  posted_date?: string;
-  flow?: 'inflow' | 'outflow';
-  merchant?: string;
-}
-
-export interface Dashboard {
-  link_id: string;
-  total_balance: number;
-  gasto_mes_atual: number;
-  gasto_mes_anterior: number;
-  variacao_percentual: number;
-  total_transactions: number;
-  inflow_sum: number;
-  outflow_sum: number;
-  net_flow: number;
-}
-
-export interface Insight {
-  insight_id: string;
-  link_id: string;
-  source_from: string;
-  source_to: string;
-  generated_at: string;
-  title: string;
-  insight: string;
-  category: string;
-  priority: 'low' | 'medium' | 'high';
-  action: string;
-  confidence: number;
-  metrics_json?: string;
-}
-
-export interface OwnerData {
-  person: Person | null;
-  accounts: Account[];
-  transactions: Transaction[];
-  dashboard: Dashboard | null;
-  insights: Insight[];
-}
-
-export interface OwnerMetrics {
-  monthlyIncome: number;
-  monthlyExpenses: number;
-  savingsRate: number;
-  topCategories: Array<{ category: string; amount: number }>;
-  totalAssets: number;
-  totalLiabilities: number;
-  netWorth: number;
-}
 
 type NormalizedData = {
   people: Person[];
@@ -316,7 +238,7 @@ const normalizeDataset = (raw: RawDataset): NormalizedData => {
         account_id: accountId,
         link_id: linkId,
         account_name: toStringValue(pickValue(record, ['account_name', 'nome_conta', 'name']), 'Conta'),
-        institution_name: toStringValue(pickValue(record, ['institution_name', 'institution', 'bank']), 'Instituição'),
+        institution_name: toStringValue(pickValue(record, ['institution_name', 'institution', 'bank']), 'Instituiï¿½ï¿½o'),
         balance_current: balance,
         currency: toStringValue(pickValue(record, ['currency', 'moeda']), 'BRL'),
         liability_outstanding: liabilityOutstanding || undefined,
@@ -344,7 +266,7 @@ const normalizeDataset = (raw: RawDataset): NormalizedData => {
         link_id: linkId,
         account_id: toStringValue(pickValue(record, ['account_id', 'conta', 'account'])) || undefined,
         amount: Number.isFinite(signedAmount) ? signedAmount : 0,
-        description: toStringValue(pickValue(record, ['description', 'descricao', 'merchant_name']), 'Transação'),
+        description: toStringValue(pickValue(record, ['description', 'descricao', 'merchant_name']), 'Transaï¿½ï¿½o'),
         category: toStringValue(pickValue(record, ['category', 'categoria'])),
         value_date: valueDate || postedDate || '',
         posted_date: postedDate || valueDate || undefined,
@@ -575,14 +497,14 @@ export const useGoogleSheetsData = () => {
             const raw = await fetchDatasetFromGViz();
             normalized = normalizeDataset(raw);
             apiValid = true;
-            warning = 'API Key restrita para este domínio. Dados carregados via fallback público (GViz).';
+            warning = 'API Key restrita para este domï¿½nio. Dados carregados via fallback pï¿½blico (GViz).';
           } catch (gvizError) {
-            console.error('[HOPE] Fallback GViz falhou, usando dados de demonstração', gvizError);
+            console.error('[HOPE] Fallback GViz falhou, usando dados de demonstraï¿½ï¿½o', gvizError);
             normalized = normalizeDataset(buildMockDataset());
             usedMock = true;
             apiValid = false;
             source = 'mock';
-            warning = 'Não foi possível acessar o Google Sheets. Exibindo dados de demonstração.';
+            warning = 'Nï¿½o foi possï¿½vel acessar o Google Sheets. Exibindo dados de demonstraï¿½ï¿½o.';
           }
         }
       }
@@ -599,13 +521,13 @@ export const useGoogleSheetsData = () => {
       if (!opts?.silent) {
         if (usedMock) {
           toast({
-            title: 'Modo demonstração',
+            title: 'Modo demonstraï¿½ï¿½o',
             description: 'Dados mock carregados.',
           });
         } else {
           toast({
             title: 'Dados atualizados',
-            description: `${normalized.people.length} pessoas, ${normalized.accounts.length} contas, ${normalized.transactions.length} transações.`,
+            description: `${normalized.people.length} pessoas, ${normalized.accounts.length} contas, ${normalized.transactions.length} transaï¿½ï¿½es.`,
           });
         }
       }
@@ -655,6 +577,54 @@ export const useGoogleSheetsData = () => {
     };
   }, [selectedOwner, data]);
 
+  // FunÃ§Ã£o privada para calcular mÃ©tricas baseadas em transaÃ§Ãµes e contas
+  const calculateMetrics = useCallback((transactions: Transaction[], accounts: Account[]): OwnerMetrics => {
+    const monthlyIncome = transactions
+      .filter((t) => t.flow === 'inflow' || t.amount > 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const monthlyExpenses = transactions
+      .filter((t) => t.flow === 'outflow' || t.amount < 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
+
+    const categoryTotals: Record<string, number> = {};
+    transactions.forEach((t) => {
+      const isOutflow = t.flow === 'outflow' || t.amount < 0;
+      if (!isOutflow) {
+        return;
+      }
+      const category = t.category || 'Sem categoria';
+      categoryTotals[category] = (categoryTotals[category] || 0) + Math.abs(t.amount);
+    });
+
+    const topCategories = Object.entries(categoryTotals)
+      .map(([category, amount]) => ({ category, amount }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5);
+
+    const totalAssets = accounts
+      .filter((a) => !a.is_liability)
+      .reduce((sum, a) => sum + (a.balance_current || 0), 0);
+
+    const totalLiabilities = accounts
+      .filter((a) => a.is_liability)
+      .reduce((sum, a) => sum + Math.abs(a.balance_current || 0), 0);
+
+    const netWorth = totalAssets - totalLiabilities;
+
+    return {
+      monthlyIncome,
+      monthlyExpenses,
+      savingsRate,
+      topCategories,
+      totalAssets,
+      totalLiabilities,
+      netWorth,
+    };
+  }, []);
+
   const getSelectedOwnerMetrics = useCallback((): OwnerMetrics => {
     const ownerData = getSelectedOwnerData();
     if (!ownerData) {
@@ -679,51 +649,8 @@ export const useGoogleSheetsData = () => {
       return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear;
     });
 
-    const monthlyIncome = monthlyTransactions
-      .filter((t) => t.flow === 'inflow' || t.amount > 0)
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-    const monthlyExpenses = monthlyTransactions
-      .filter((t) => t.flow === 'outflow' || t.amount < 0)
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-    const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
-
-    const categoryTotals: Record<string, number> = {};
-    monthlyTransactions.forEach((t) => {
-      const isOutflow = t.flow === 'outflow' || t.amount < 0;
-      if (!isOutflow) {
-        return;
-      }
-      const category = t.category || 'Sem categoria';
-      categoryTotals[category] = (categoryTotals[category] || 0) + Math.abs(t.amount);
-    });
-
-    const topCategories = Object.entries(categoryTotals)
-      .map(([category, amount]) => ({ category, amount }))
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 5);
-
-    const totalAssets = ownerData.accounts
-      .filter((a) => !a.is_liability)
-      .reduce((sum, a) => sum + (a.balance_current || 0), 0);
-
-    const totalLiabilities = ownerData.accounts
-      .filter((a) => a.is_liability)
-      .reduce((sum, a) => sum + Math.abs(a.balance_current || 0), 0);
-
-    const netWorth = totalAssets - totalLiabilities;
-
-    return {
-      monthlyIncome,
-      monthlyExpenses,
-      savingsRate,
-      topCategories,
-      totalAssets,
-      totalLiabilities,
-      netWorth,
-    };
-  }, [getSelectedOwnerData]);
+    return calculateMetrics(monthlyTransactions, ownerData.accounts);
+  }, [getSelectedOwnerData, calculateMetrics]);
 
   const getSelectedOwnerMetricsFor = useCallback((month: number, year: number): OwnerMetrics => {
     const ownerData = getSelectedOwnerData();
@@ -745,51 +672,8 @@ export const useGoogleSheetsData = () => {
       return transactionDate.getMonth() === month && transactionDate.getFullYear() === year;
     });
 
-    const monthlyIncome = monthlyTransactions
-      .filter((t) => t.flow === 'inflow' || t.amount > 0)
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-    const monthlyExpenses = monthlyTransactions
-      .filter((t) => t.flow === 'outflow' || t.amount < 0)
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-    const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
-
-    const categoryTotals: Record<string, number> = {};
-    monthlyTransactions.forEach((t) => {
-      const isOutflow = t.flow === 'outflow' || t.amount < 0;
-      if (!isOutflow) {
-        return;
-      }
-      const category = t.category || 'Sem categoria';
-      categoryTotals[category] = (categoryTotals[category] || 0) + Math.abs(t.amount);
-    });
-
-    const topCategories = Object.entries(categoryTotals)
-      .map(([category, amount]) => ({ category, amount }))
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 5);
-
-    const totalAssets = ownerData.accounts
-      .filter((a) => !a.is_liability)
-      .reduce((sum, a) => sum + (a.balance_current || 0), 0);
-
-    const totalLiabilities = ownerData.accounts
-      .filter((a) => a.is_liability)
-      .reduce((sum, a) => sum + Math.abs(a.balance_current || 0), 0);
-
-    const netWorth = totalAssets - totalLiabilities;
-
-    return {
-      monthlyIncome,
-      monthlyExpenses,
-      savingsRate,
-      topCategories,
-      totalAssets,
-      totalLiabilities,
-      netWorth,
-    };
-  }, [getSelectedOwnerData]);
+    return calculateMetrics(monthlyTransactions, ownerData.accounts);
+  }, [getSelectedOwnerData, calculateMetrics]);
 
   const getSelectedOwnerTransactionsFor = useCallback((month: number, year: number): Transaction[] => {
     const ownerData = getSelectedOwnerData();
@@ -822,51 +706,8 @@ export const useGoogleSheetsData = () => {
       return transactionDate.getFullYear() === year;
     });
 
-    const monthlyIncome = ytdTransactions
-      .filter((t) => t.flow === 'inflow' || t.amount > 0)
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-    const monthlyExpenses = ytdTransactions
-      .filter((t) => t.flow === 'outflow' || t.amount < 0)
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-    const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
-
-    const categoryTotals: Record<string, number> = {};
-    ytdTransactions.forEach((t) => {
-      const isOutflow = t.flow === 'outflow' || t.amount < 0;
-      if (!isOutflow) {
-        return;
-      }
-      const category = t.category || 'Sem categoria';
-      categoryTotals[category] = (categoryTotals[category] || 0) + Math.abs(t.amount);
-    });
-
-    const topCategories = Object.entries(categoryTotals)
-      .map(([category, amount]) => ({ category, amount }))
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 5);
-
-    const totalAssets = ownerData.accounts
-      .filter((a) => !a.is_liability)
-      .reduce((sum, a) => sum + (a.balance_current || 0), 0);
-
-    const totalLiabilities = ownerData.accounts
-      .filter((a) => a.is_liability)
-      .reduce((sum, a) => sum + Math.abs(a.balance_current || 0), 0);
-
-    const netWorth = totalAssets - totalLiabilities;
-
-    return {
-      monthlyIncome,
-      monthlyExpenses,
-      savingsRate,
-      topCategories,
-      totalAssets,
-      totalLiabilities,
-      netWorth,
-    };
-  }, [getSelectedOwnerData]);
+    return calculateMetrics(ytdTransactions, ownerData.accounts);
+  }, [getSelectedOwnerData, calculateMetrics]);
 
   const getSelectedOwnerTransactionsYTD = useCallback((year: number): Transaction[] => {
     const ownerData = getSelectedOwnerData();
@@ -881,7 +722,7 @@ export const useGoogleSheetsData = () => {
 
   const owners = data.people.map((p) => ({
     id: p.link_id,
-    name: p.person_alias || `${p.first_name} ${p.last_name}`.trim() || 'Usuário',
+    name: p.person_alias || `${p.first_name} ${p.last_name}`.trim() || 'Usuï¿½rio',
     alias: p.person_alias,
     fullName: `${p.first_name} ${p.last_name}`.trim(),
   }));
