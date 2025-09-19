@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+﻿import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -70,7 +70,7 @@ export const HeaderFilters = ({
   const owner = useMemo(() => owners.find(o => o.id === selectedOwner), [owners, selectedOwner]);
   const ownerName = owner?.name || 'Selecionar usuário';
   const initials = getInitials(ownerName);
-  const monthLabel = new Date(Date.UTC(2000, selectedMonth, 1)).toLocaleString('pt-BR', { month: 'long' });
+  const monthLabel = new Date(2000, selectedMonth, 1).toLocaleString('pt-BR', { month: 'long' });
   const updatedAt = (lastUpdated || new Date()).toLocaleString('pt-BR');
   const incomeLabel = ytdMode ? 'Receita acumulada' : 'Receita mensal';
   const expensesLabel = ytdMode ? 'Gastos acumulados' : 'Gastos mensais';
@@ -164,7 +164,7 @@ export const HeaderFilters = ({
                       <SelectValue placeholder="Ano" />
                     </SelectTrigger>
                     <SelectContent key="year-select">
-                      {Array.from({ length: 6 }, (_, i) => new Date().getUTCFullYear() - i).map(y => (
+                      {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i).map(y => (
                         <SelectItem key={y} value={String(y)}>{y}</SelectItem>
                       ))}
                     </SelectContent>
@@ -186,14 +186,14 @@ export const HeaderFilters = ({
             </Button>
             {/* Atalhos de período */}
             <div className="hidden sm:flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => { onMonthChange(new Date().getUTCMonth()); onYearChange(new Date().getUTCFullYear()); }}>Este mês</Button>
-              <Button variant="ghost" size="sm" onClick={() => { const d=new Date(); const m=(d.getUTCMonth()+11)%12; const y=m===11?d.getUTCFullYear()-1:d.getUTCFullYear(); onMonthChange(m); onYearChange(y); }}>Anterior</Button>
+              <Button variant="ghost" size="sm" onClick={() => { onMonthChange(new Date().getMonth()); onYearChange(new Date().getFullYear()); }}>Este mês</Button>
+              <Button variant="ghost" size="sm" onClick={() => { const d=new Date(); const m=(d.getMonth()+11)%12; const y=m===11?d.getFullYear()-1:d.getFullYear(); onMonthChange(m); onYearChange(y); }}>Anterior</Button>
               <Button
                 variant={ytdMode ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => {
                   const d = new Date();
-                  onYearChange(d.getUTCFullYear());
+                  onYearChange(d.getFullYear());
                   if (onToggleYTD) { onToggleYTD(!ytdMode); }
                 }}
                 title="Year-To-Date"
@@ -249,5 +249,6 @@ export const HeaderFilters = ({
 };
 
 export default HeaderFilters;
+
 
 

@@ -1,14 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { PieChart, TrendingUp, FileText, Home, ActivitySquare, User } from 'lucide-react';
+import { TrendingUp, Home, ActivitySquare, User } from 'lucide-react';
 
 export const Navbar = () => {
   const location = useLocation();
 
   const navItems = [
     { to: '/', icon: Home, label: 'Dashboard' },
-    { to: '/transactions', icon: PieChart, label: 'Transações' },
-    { to: '/reports', icon: FileText, label: 'Relatórios' },
     { to: '/perfil', icon: User, label: 'Perfil' },
     { to: '/diagnostico', icon: ActivitySquare, label: 'Diagnóstico' },
   ];

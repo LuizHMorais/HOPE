@@ -47,7 +47,7 @@ bun dev
 - ✅ **Métricas consolidadas**: Saldos, gastos, categorias por usuário
 
 ### **Configuração Flexível**
-- ✅ **Hook Simples**: `useGoogleSheetsDataSimple` (padrão)
+- ✅ **Hook Simples**: `useGoogleSheetsData` (padrão)
 - ✅ **Hook Completo**: `useGoogleSheetsData` (com API)
 - ✅ **Fácil Alternância**: Mude o import para alternar entre os modos
 
@@ -76,10 +76,8 @@ Se quiser conectar à API real do Google Sheets:
 2. **Mude o import** nas páginas de:
    ```typescript
    // De:
-   import { useGoogleSheetsDataSimple as useGoogleSheetsData } from '@/hooks/useGoogleSheetsDataSimple';
    
    // Para:
-   import { useGoogleSheetsData } from '@/hooks/useGoogleSheetsData';
    ```
 3. **Reinicie o servidor**
 
