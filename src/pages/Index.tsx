@@ -122,6 +122,39 @@ const Index = () => {
     ]
   );
 
+  const availableMonthsByYear = useMemo(() => {
+    if (!ownerData) {
+      return {};
+    }
+
+    const monthsByYear = new Map<number, Set<number>>();
+    ownerData.transactions.forEach((transaction) => {
+      const baseDate = transaction.value_date || transaction.posted_date;
+      if (!baseDate) {
+        return;
+      }
+
+      const parsedDate = new Date(baseDate);
+      if (Number.isNaN(parsedDate.getTime())) {
+        return;
+      }
+
+      const year = parsedDate.getFullYear();
+      const month = parsedDate.getMonth();
+      if (!monthsByYear.has(year)) {
+        monthsByYear.set(year, new Set<number>());
+      }
+      monthsByYear.get(year)?.add(month);
+    });
+
+    const result: Record<number, number[]> = {};
+    monthsByYear.forEach((months, year) => {
+      result[year] = Array.from(months).sort((a, b) => a - b);
+    });
+
+    return result;
+  }, [ownerData]);
+
   const topSpendingCategory = ownerMetrics?.topCategories?.[0];
   const hasSpendingCategory = Boolean(topSpendingCategory && topSpendingCategory.amount > 0);
 
@@ -369,6 +402,7 @@ const Index = () => {
           savingsRate={ownerMetrics?.savingsRate || 0}
           ytdMode={ytdMode}
           onToggleYTD={setYtdMode}
+          availableMonthsByYear={availableMonthsByYear}
         />
 
         <div className="text-left container mx-auto px-0">

@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, ChevronDown, RefreshCw, User, TrendingUp, TrendingDown, ArrowRightLeft } from 'lucide-react';
 import { formatCurrency } from '@/lib/mockData';
+import { cn } from '@/lib/utils';
 
 interface OwnerOption {
   id: string;
@@ -37,6 +38,7 @@ interface HeaderFiltersProps {
   savingsRate?: number;
   ytdMode?: boolean;
   onToggleYTD?: (enabled: boolean) => void;
+  availableMonthsByYear?: Record<number, number[]>;
 }
 
 const getInitials = (name: string): string => {
@@ -63,12 +65,28 @@ export const HeaderFilters = ({
   savingsRate = 0,
   ytdMode = false,
   onToggleYTD,
+  availableMonthsByYear,
 }: HeaderFiltersProps) => {
   const [openOwner, setOpenOwner] = useState(false);
   const [openPeriod, setOpenPeriod] = useState(false);
 
   const owner = useMemo(() => owners.find(o => o.id === selectedOwner), [owners, selectedOwner]);
-  const ownerName = owner?.name || 'Selecionar usuário';
+  const ownerName = owner?.name || 'Selecionar usu�rio';
+  const monthsWithData = useMemo(() => {
+    if (!availableMonthsByYear) {
+      return [];
+    }
+    return availableMonthsByYear[selectedYear] ?? [];
+  }, [availableMonthsByYear, selectedYear]);
+  const availableYears = useMemo(() => {
+    if (!availableMonthsByYear) {
+      return [];
+    }
+    return Object.keys(availableMonthsByYear)
+      .map((year) => Number(year))
+      .filter((year) => Number.isFinite(year))
+      .sort((a, b) => b - a);
+  }, [availableMonthsByYear]);
   const initials = getInitials(ownerName);
   const monthLabel = new Date(2000, selectedMonth, 1).toLocaleString('pt-BR', { month: 'long' });
   const updatedAt = (lastUpdated || new Date()).toLocaleString('pt-BR');
@@ -143,17 +161,23 @@ export const HeaderFilters = ({
                     <CommandInput placeholder="Buscar mês..." />
                     <CommandList key="month-list">
                       <CommandGroup key="month-group">
-                        {Array.from({ length: 12 }, (_, m) => (
-                          <CommandItem
-                            key={`month-${m}`}
-                            value={new Date(2000, m, 1).toLocaleString('pt-BR', { month: 'long' })}
-                            onSelect={() => { onMonthChange(m); setOpenPeriod(false); }}
-                          >
-                            <span className="capitalize">
-                              {new Date(2000, m, 1).toLocaleString('pt-BR', { month: 'long' })}
-                            </span>
-                          </CommandItem>
-                        ))}
+                        {Array.from({ length: 12 }, (_, m) => {
+                          const monthLabel = new Date(2000, m, 1).toLocaleString('pt-BR', { month: 'long' });
+                          const hasData = monthsWithData.includes(m);
+                          return (
+                            <CommandItem
+                              key={`month-${m}`}
+                              value={monthLabel}
+                              onSelect={() => { onMonthChange(m); setOpenPeriod(false); }}
+                              className={cn('capitalize flex items-center justify-between', hasData ? 'font-semibold text-foreground' : 'text-muted-foreground')}
+                            >
+                              <span className="capitalize">{monthLabel}</span>
+                              {!hasData && (
+                                <span className="ml-3 text-[10px] uppercase tracking-wide text-muted-foreground/70">sem dados</span>
+                              )}
+                            </CommandItem>
+                          );
+                        })}
                       </CommandGroup>
                     </CommandList>
                   </Command>
@@ -164,8 +188,14 @@ export const HeaderFilters = ({
                       <SelectValue placeholder="Ano" />
                     </SelectTrigger>
                     <SelectContent key="year-select">
-                      {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i).map(y => (
-                        <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                      {(availableYears.length > 0 ? availableYears : Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i)).map((y) => (
+                        <SelectItem
+                          key={y}
+                          value={String(y)}
+                          className={cn(availableMonthsByYear && (availableMonthsByYear[y]?.length ?? 0) > 0 ? 'font-semibold text-foreground' : 'text-muted-foreground')}
+                        >
+                          {y}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -249,6 +279,17 @@ export const HeaderFilters = ({
 };
 
 export default HeaderFilters;
+
+
+
+
+
+
+
+
+
+
+
 
 
 

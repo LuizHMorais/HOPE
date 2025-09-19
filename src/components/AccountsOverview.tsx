@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+﻿import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { AccountData, formatCurrency } from '@/lib/mockData';
@@ -96,8 +96,8 @@ export const AccountsOverview = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {accounts.slice(0, 5).map((account) => (
+          <div className="space-y-4 max-h-80 overflow-y-auto pr-1">
+            {accounts.map((account) => (
               <div
                 key={account.account_id}
                 className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors"
@@ -125,3 +125,5 @@ export const AccountsOverview = ({
     </div>
   );
 };
+
+
