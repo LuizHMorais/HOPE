@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+﻿import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Insight } from '@/hooks/useGoogleSheetsData';
@@ -61,14 +61,14 @@ const getCategoryBadgeVariant = (category: string): BadgeVariant => {
     case 'income':
     case 'receita':
     case 'savings':
-    case 'poupan�a':
+    case 'poupança':
       return 'default';
     case 'subscriptions':
     case 'assinaturas':
     case 'cashflow':
     case 'fluxo de caixa':
     case 'recommendations':
-    case 'recomenda��es':
+    case 'recomendações':
       return 'secondary';
     default:
       return 'outline';
@@ -82,7 +82,7 @@ const getPriorityBadgeVariant = (priority: string): BadgeVariant => {
     case 'alta':
       return 'destructive';
     case 'medium':
-    case 'm�dia':
+    case 'média':
       return 'default';
     case 'low':
     case 'baixa':
@@ -247,3 +247,4 @@ export const AIInsights = ({ insights, isLoading = false }: AIInsightsProps) => 
     </Card>
   );
 };
+

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { AccountData, formatCurrency } from '@/lib/mockData';
-import { Building2, TrendingUp, Wallet, PieChart } from 'lucide-react';
+import { Building2, Wallet, PieChart, AlertTriangle } from 'lucide-react';
 
 interface AccountsOverviewProps {
   accounts: AccountData[];
@@ -12,13 +12,27 @@ interface AccountsOverviewProps {
   belowTotals?: ReactNode;
 }
 
-export const AccountsOverview = ({ 
-  accounts, 
-  totalAssets, 
-  totalLiabilities, 
+export const AccountsOverview = ({
+  accounts,
+  totalAssets,
+  totalLiabilities,
   totalBalance,
   belowTotals,
 }: AccountsOverviewProps) => {
+  const assetAccounts = accounts.filter((account) => !account.is_liability);
+  const liabilityAccounts = accounts.filter((account) => account.is_liability);
+  const negativeAssetAccounts = assetAccounts.filter((account) => (account.balance_current || 0) < 0);
+  const negativeAssetsTotal = negativeAssetAccounts.reduce((sum, account) => sum + Math.abs(account.balance_current || 0), 0);
+  const assetsSubtitle = assetAccounts.length > 0
+    ? `${assetAccounts.length} conta${assetAccounts.length > 1 ? 's' : ''} ativas`
+    : 'Nenhuma conta ativa';
+  const liabilitiesSubtitle = liabilityAccounts.length > 0
+    ? `${liabilityAccounts.length} compromisso${liabilityAccounts.length > 1 ? 's' : ''}`
+    : 'Nenhum passivo registrado';
+  const alertSubtitle = negativeAssetAccounts.length > 0
+    ? `${negativeAssetAccounts.length} conta${negativeAssetAccounts.length > 1 ? 's' : ''} com saldo negativo`
+    : 'Nenhum alerta de saldo';
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
@@ -26,14 +40,14 @@ export const AccountsOverview = ({
         <Card className="shadow-card">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3 min-w-0">
-              <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-success" />
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-primary" />
               </div>
               <div className="min-w-0">
-                <div className="text-xl md:text-2xl font-bold text-success break-words leading-tight">
+                <div className="text-xl md:text-2xl font-bold text-primary break-words leading-tight">
                   {formatCurrency(totalAssets)}
                 </div>
-                <div className="text-sm text-muted-foreground">Total de Ativos</div>
+                <div className="text-sm text-muted-foreground">{assetsSubtitle}</div>
               </div>
             </div>
           </CardContent>
@@ -47,9 +61,9 @@ export const AccountsOverview = ({
               </div>
               <div className="min-w-0">
                 <div className="text-xl md:text-2xl font-bold text-destructive break-words leading-tight">
-                  {formatCurrency(totalLiabilities)}
+                  {totalLiabilities > 0 ? formatCurrency(totalLiabilities) : '--'}
                 </div>
-                <div className="text-sm text-muted-foreground">Total de Passivos</div>
+                <div className="text-sm text-muted-foreground">{liabilitiesSubtitle}</div>
               </div>
             </div>
           </CardContent>
@@ -58,20 +72,19 @@ export const AccountsOverview = ({
         <Card className="shadow-card">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3 min-w-0">
-              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Wallet className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-warning" />
               </div>
               <div className="min-w-0">
-                <div className="text-xl md:text-2xl font-bold text-primary break-words leading-tight">
-                  {formatCurrency(totalBalance)}
+                <div className={`text-xl md:text-2xl font-bold break-words leading-tight ${negativeAssetAccounts.length > 0 ? 'text-warning' : 'text-muted-foreground'}`}>
+                  {negativeAssetAccounts.length > 0 ? formatCurrency(negativeAssetsTotal) : '--'}
                 </div>
-                <div className="text-sm text-muted-foreground">Saldo Total</div>
+                <div className="text-sm text-muted-foreground">{alertSubtitle}</div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
       {belowTotals}
 
       {/* Accounts List */}
@@ -95,7 +108,7 @@ export const AccountsOverview = ({
                     {account.institution_name.replace('_', ' ')}
                   </div>
                 </div>
-                
+
                 <div className="text-right">
                   <div className="font-bold text-lg text-success">
                     {formatCurrency(account.balance_current)}
