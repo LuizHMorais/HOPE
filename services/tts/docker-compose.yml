@@ -1,0 +1,20 @@
+services:
+  tts:
+    build: .
+    container_name: hope-tts
+    ports:
+      - "8800:8800"
+    environment:
+      # Pode ajustar no .env (ver .env.example)
+      - VOICES_DIR=/app/voices
+      - OUTPUT_DIR=/app/output
+      - DEFAULT_VOICE=pt_BR-edresson-low
+      - PIPER_BIN=/usr/local/bin/piper/piper
+    volumes:
+      - ./voices:/app/voices
+      - ./output:/app/output
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8800/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
