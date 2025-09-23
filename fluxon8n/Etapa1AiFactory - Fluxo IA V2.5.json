@@ -1,5 +1,5 @@
 {
-  "name": "Etapa1AiFactory - Fluxo IA",
+  "name": "Etapa1AiFactory - Fluxo IA V2.5",
   "nodes": [
     {
       "parameters": {
@@ -14,10 +14,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        0,
-        0
+        -1792,
+        144
       ],
-      "id": "5c3b2b01-934a-458e-9187-87d1552b13fc",
+      "id": "e90b1125-7c62-4cbc-91d9-9b3c323511ab",
       "name": "Schedule Trigger"
     },
     {
@@ -41,10 +41,10 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        448,
-        160
+        -1376,
+        176
       ],
-      "id": "8aba2351-a725-455d-9f54-145644b784b4",
+      "id": "8bcf441e-34cc-44dd-8fcd-101d90d4f81e",
       "name": "Get Transactions",
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -74,10 +74,10 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        448,
-        -32
+        -1504,
+        48
       ],
-      "id": "84e6266b-989b-4c98-af8a-601d67e513ce",
+      "id": "56cdca31-2773-49a1-898d-5a6f1c85cfac",
       "name": "Get Accounts",
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -107,10 +107,10 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        448,
-        -208
+        -1504,
+        -128
       ],
-      "id": "f969c0bf-cbde-40f6-89f1-e5e941e997ec",
+      "id": "147b4a93-8a37-4afc-8000-765f64a5eb13",
       "name": "Get People",
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -140,10 +140,10 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        448,
-        336
+        -1328,
+        320
       ],
-      "id": "ac2561f0-0e92-44ca-a3c7-3a0425d193bc",
+      "id": "06bdabe2-64ce-4840-80e4-dfbea0502ae9",
       "name": "Get Dashboard",
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -159,10 +159,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1088,
-        144
+        -992,
+        192
       ],
-      "id": "85d44937-a1e7-470d-80aa-4012f5e77cc2",
+      "id": "78391453-f7d4-46f6-81a3-c7c3cdd5497c",
       "name": "Merge1"
     },
     {
@@ -172,10 +172,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        912,
-        -32
+        -1136,
+        64
       ],
-      "id": "f5ea3ee8-d1ce-44ea-922a-878dc49d765e",
+      "id": "db6cc572-fbcd-4377-8f61-26c9afb1975d",
       "name": "Merge2"
     },
     {
@@ -185,10 +185,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        752,
-        -176
+        -1312,
+        -64
       ],
-      "id": "1c543de7-4e21-4e58-9eb2-a57aead47759",
+      "id": "79f5e06e-dcae-42c4-a620-9d8e0e24cf3e",
       "name": "Merge"
     },
     {
@@ -198,10 +198,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1264,
-        144
+        -816,
+        192
       ],
-      "id": "207bc8b3-2e57-4442-9809-69b0eb62ee32",
+      "id": "5ecb3018-e757-41eb-ade4-0d41d6d4753f",
       "name": "Build Nested Owners"
     },
     {
@@ -211,10 +211,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        208,
-        0
+        -1648,
+        144
       ],
-      "id": "e25fd320-d2fa-40c7-8d88-639d76ec4da4",
+      "id": "31c46057-e27f-42eb-85c4-9e92686ee754",
       "name": "Code in JavaScript"
     },
     {
@@ -224,10 +224,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        1472,
-        144
+        -576,
+        192
       ],
-      "id": "6a33f472-5069-41ae-b681-5302035ef880",
+      "id": "89eaf9ca-db5a-4c61-bd8b-66eb17ad27ef",
       "name": "Loop Over Items"
     },
     {
@@ -237,10 +237,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1680,
-        160
+        -384,
+        208
       ],
-      "id": "68487aa1-f5cd-42b5-9ae5-a469018a94dc",
+      "id": "4091dada-bdc0-4a76-a285-033a074fabcf",
       "name": "Prep Insights"
     },
     {
@@ -270,11 +270,24 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1856,
-        160
+        -192,
+        208
       ],
-      "id": "9a3a9504-2cd3-4bcb-89d7-77c860b3f372",
+      "id": "11d1539f-26e2-4818-994b-3331ea3ae0d1",
       "name": "Ollama — Generate"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Converte a resposta do modelo em itens (1 por insight) e calcula content_hash (sem require)\n\n// <- dados do \"Prep Insights\"\nconst prev = $item(0).$node[\"Prep Insights\"].json;\nconst res  = $json;\n\n// conteúdo retornado pelo /api/chat (Ollama)\nlet content = (res && res.message && typeof res.message.content === 'string')\n  ? res.message.content\n  : '';\n\n// parser tolerante para pegar o JSON mesmo com ``` ou texto extra\nfunction safeParse(s) {\n  if (!s || typeof s !== 'string') return null;\n  try { return JSON.parse(s); } catch {}\n  const noTicks = s.replace(/^```json|^```|```$/g, '');\n  try { return JSON.parse(noTicks); } catch {}\n  const first = s.indexOf('{');\n  const last  = s.lastIndexOf('}');\n  if (first !== -1 && last !== -1 && last > first) {\n    const mid = s.slice(first, last + 1);\n    try { return JSON.parse(mid); } catch {}\n  }\n  return null;\n}\n\nlet parsed = safeParse(content);\nif (!parsed || typeof parsed !== 'object') parsed = { insights: [] };\nconst insights = Array.isArray(parsed.insights) ? parsed.insights : [];\n\n// metadados do modelo\nconst meta = {\n  model: res.model,\n  created_at: res.created_at,\n  prompt_tokens: res.prompt_eval_count ?? null,\n  completion_tokens: res.eval_count ?? null,\n};\n\n// --------- HASH sem crypto (FNV-1a 32-bit + len) ---------\nfunction contentHash(ins) {\n  const s = [\n    ins.title || '',\n    ins.summary || '',\n    ins.category || '',\n    ins.priority || '',\n    ins.suggested_action || ''\n  ].join('|');\n\n  let h = 0x811c9dc5; // offset basis\n  for (let i = 0; i < s.length; i++) {\n    h ^= s.charCodeAt(i);\n    // FNV-1a prime *h (em 32 bits)\n    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;\n  }\n  // hex de 8 chars + comprimento (reduz colisão prática para dedupe)\n  return h.toString(16).padStart(8,'0') + '-' + s.length.toString(16).padStart(4,'0');\n}\n// ---------------------------------------------------------\n\nfunction rowFrom(ins) {\n  const content_hash = contentHash(ins);\n  return {\n    insight_id: `${prev.link_id}-${(Math.random().toString(36).slice(2,10))}`,\n    link_id: prev.link_id,\n    source_from: prev.date_from,\n    source_to: prev.date_to,\n    generated_at: new Date().toISOString(),\n\n    title: ins.title,\n    insight: ins.summary,\n    category: ins.category,\n    priority: ins.priority,\n    action: ins.suggested_action,\n    confidence: ins.confidence,\n\n    content_hash,\n    metrics_json: prev.metrics_json,\n    model: meta.model,\n    // se quiser guardar temperatura, pegue do prev.body.options.temperature\n    temperature: (prev && prev.body && prev.body.options && typeof prev.body.options.temperature === 'number')\n      ? prev.body.options.temperature\n      : 0.1,\n    prompt_tokens: meta.prompt_tokens,\n    completion_tokens: meta.completion_tokens,\n\n    // campos de áudio começam vazios (serão preenchidos depois do Save)\n    audio_url: \"\",\n    audio_status: \"\",\n    audio_hash: \"\",\n    voice: \"\",\n    tts_model: \"\",\n    audio_updated_at: \"\"\n  };\n}\n\nif (insights.length === 0) {\n  return [{\n    json: rowFrom({\n      title: \"Sem JSON válido do modelo\",\n      summary: \"Modelo não retornou {insights} ou veio truncado.\",\n      category: \"alerts\",\n      priority: \"low\",\n      suggested_action: \"Reexecutar com prompt rígido ou aumentar num_predict.\",\n      confidence: 0,\n    }),\n  }];\n}\n\nreturn insights.map((ins) => ({ json: rowFrom(ins) }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        208
+      ],
+      "id": "20388aeb-cdd4-4b47-9913-06d7db560a7c",
+      "name": "Parse Ollama"
     },
     {
       "parameters": {
@@ -310,8 +323,10 @@
             "metrics_json": "={{ $json.metrics_json }}",
             "model": "={{ $json.model }}",
             "temperature": "={{ $json.temperature }}",
-            "prompt_tokens": "={{ $json.prompt_eval_count }}",
-            "completion_tokens": "={{ $json.eval_count }}"
+            "prompt_tokens": "={{ $json.prompt_tokens }}",
+            "completion_tokens": "={{ $json.completion_tokens }}",
+            "content_hash": "={{ $json.content_hash }}",
+            "audio_seconds": "==\"\""
           },
           "matchingColumns": [
             "insight_id"
@@ -461,6 +476,86 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "audio_url",
+              "displayName": "audio_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "audio_status",
+              "displayName": "audio_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "audio_seconds",
+              "displayName": "audio_seconds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voice",
+              "displayName": "voice",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "tts_model",
+              "displayName": "tts_model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "audio_updated_at",
+              "displayName": "audio_updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "audio_hash",
+              "displayName": "audio_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "content_hash",
+              "displayName": "content_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -471,11 +566,11 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1776,
-        -64
+        -416,
+        -32
       ],
-      "id": "c30c136d-abf2-42e7-b781-06a94bb997d6",
-      "name": "Append or update row in sheet1",
+      "id": "1a04fcff-81f8-4ffa-a33e-db04cef7a040",
+      "name": "Save Insights",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "uW5EFVki21ARxBHX",
@@ -485,16 +580,436 @@
     },
     {
       "parameters": {
-        "jsCode": "// Parse resposta do Ollama (HTTP Request) e solta 1 item por insight.\n// Robusto contra JSON com ruído e cortes.\n\nconst prev = $item(0).$node[\"Prep Insights\"].json; // contexto do item atual\n\n// Em algumas execuções o HTTP node pode vir como array; padroniza:\nconst res = $json;\n\n// Tenta extrair o conteúdo textual do modelo:\nlet content = (res && res.message && typeof res.message.content === 'string')\n  ? res.message.content\n  : '';\n\n// Função de parse tolerante\nfunction safeParse(s) {\n  if (!s || typeof s !== 'string') return null;\n  // 1) tenta direto\n  try { return JSON.parse(s); } catch {}\n  // 2) remove crases/backticks e tenta de novo\n  const noTicks = s.replace(/^```json|^```|```$/g, '');\n  try { return JSON.parse(noTicks); } catch {}\n  // 3) pega de { até } (último) e tenta\n  const first = s.indexOf('{');\n  const last  = s.lastIndexOf('}');\n  if (first !== -1 && last !== -1 && last > first) {\n    const mid = s.slice(first, last + 1);\n    try { return JSON.parse(mid); } catch {}\n  }\n  return null;\n}\n\nlet parsed = safeParse(content);\nif (!parsed || typeof parsed !== 'object') parsed = { insights: [] };\n\nconst insights = Array.isArray(parsed.insights) ? parsed.insights : [];\n\nconst meta = {\n  model: res.model,\n  created_at: res.created_at,\n  prompt_tokens: res.prompt_eval_count ?? null,\n  completion_tokens: res.eval_count ?? null,\n};\n\nfunction rowFrom(ins) {\n  return {\n    insight_id: `${prev.link_id}-${(Math.random().toString(36).slice(2,10))}`,\n    link_id: prev.link_id,\n    source_from: prev.date_from,\n    source_to: prev.date_to,\n    generated_at: new Date().toISOString(),\n\n    title: ins.title,\n    insight: ins.summary,\n    category: ins.category,\n    priority: ins.priority,\n    action: ins.suggested_action,\n    confidence: ins.confidence,\n\n    metrics_json: prev.metrics_json,\n    model: meta.model,\n    temperature: prev.temperature ?? 0.1,\n    prompt_tokens: meta.prompt_tokens,\n    completion_tokens: meta.completion_tokens,\n  };\n}\n\nif (insights.length === 0) {\n  return [{\n    json: rowFrom({\n      title: \"Sem JSON válido do modelo\",\n      summary: \"Modelo não retornou {insights} ou veio truncado.\",\n      category: \"alerts\",\n      priority: \"low\",\n      suggested_action: \"Reexecutar com prompt rígido ou aumentar num_predict.\",\n      confidence: 0,\n    }),\n  }];\n}\n\nreturn insights.map((ins) => ({ json: rowFrom(ins) }));\n"
+        "jsCode": "// Monta a fala curta e objetiva com o que interessa pro app\nfunction clean(s) {\n  if (!s) return '';\n  return String(s).replace(/\\s+/g, ' ').trim();\n}\nconst title = clean($json.title);\nconst insight = clean($json.insight);\nconst priority = clean($json.priority || '');\nconst category = clean($json.category || '');\n\nconst voice = \"pt_BR-edresson-low\";  // mesma voz que você testou\nconst ttsText =\n  title && insight\n    ? `Resumo: ${title}. ${insight} (prioridade ${priority || 'média'}, categoria ${category || 'geral'}).`\n    : (title || insight || \"Você tem um novo insight financeiro.\");\n\nreturn [{\n  json: {\n    insight_id: $json.insight_id,\n    link_id: $json.link_id,\n    title,\n    tts: {\n      url: \"http://localhost:8800/tts\",\n      payload: {\n        text: ttsText,\n        format: \"wav\",      // <<< trocado para WAV\n        voice: voice,\n        save: true\n      },\n      voice,\n      model: \"piper\"\n    }\n  }\n}];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2064,
-        160
+        112,
+        -16
       ],
-      "id": "ff0e4260-5231-4720-b89e-a5051785df97",
-      "name": "Parse Ollama"
+      "id": "2cd77fb4-93da-483a-8738-8b5dfb486f70",
+      "name": "Build TTS Payload"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.tts.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "audio/wav"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.tts.payload}}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "file"
+            }
+          },
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        272,
+        -16
+      ],
+      "id": "2d7ad2af-c3d6-42c2-8c8c-16f644543570",
+      "name": "TTS — Request",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "name": "={{ \n   $('Save Insights').item.json.insight_id\n}}-{{ \n   $('Save Insights').item.json.content_hash\n}}.wav\n",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1V_rX0ps6LOUJQTOWpcfDSE9m-sWYu9SJ",
+          "mode": "list",
+          "cachedResultName": "output",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1V_rX0ps6LOUJQTOWpcfDSE9m-sWYu9SJ"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "55aa2611-1942-4fbd-83b1-4358ec044025",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0OoWbrd1L4oeIHaA",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -112,
+        -48
+      ],
+      "id": "55b2173e-3585-4400-b13c-a00d189b062e",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "/**\n * Code in JavaScript1 — gera URL de áudio tocável no app\n * Modo: Run Once for Each Item\n */\nconst i = $itemIndex;\n\n// Itens alinhados por índice\nconst upItems     = $items('Upload file', 0, 0);\nconst savedItems  = $items('Save Insights', 0, 0);\nconst payloadItems= $items('Build TTS Payload', 0, 0);\n\nconst up      = upItems[i]?.json ?? {};\nconst saved   = savedItems[i]?.json ?? {};\nconst payload = payloadItems[i]?.json ?? {};\n\n// Tenta extrair o ID real do arquivo (do Upload)\nlet fileId =\n  up.id ||\n  up.file?.id ||\n  up.data?.id ||\n  up.resourceId ||\n  null;\n\n// Fallback: extrai do webViewLink se necessário\nif (!fileId && typeof up.webViewLink === 'string') {\n  const m = up.webViewLink.match(/\\/d\\/([^/]+)/);\n  if (m) fileId = m[1];\n}\n\n// Constrói URLs\nlet audio_direct = '';\nlet audio_url = '';\n\nif (fileId) {\n  // URL direta — ideal para <audio src=\"...\">\n  audio_direct = `https://drive.google.com/uc?export=download&id=${fileId}`;\n  // Para o app, use a direta (sem o viewer do Drive)\n  audio_url = audio_direct;\n} else {\n  // Fallbacks do próprio node do Drive\n  audio_direct = up.webContentLink || '';\n  audio_url = audio_direct || up.webViewLink || '';\n}\n\nreturn {\n  json: {\n    // chave para casadear no Sheets\n    insight_id:   saved.insight_id || payload.insight_id || '',\n    content_hash: saved.content_hash || payload.content_hash || '',\n\n    // áudio\n    audio_url,        // <- use este no app\n    audio_direct,     // opcional para baixar\n    audio_seconds: null,\n    voice:     payload.tts?.voice  || 'pt_BR-edresson-low',\n    tts_model: payload.tts?.model  || 'piper',\n    audio_hash: saved.content_hash || payload.content_hash || '',\n    audio_status: audio_url ? 'done' : 'missing',\n    audio_updated_at: new Date().toISOString(),\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        -304
+      ],
+      "id": "21ef993a-8609-447b-b224-1ad9775e3c1f",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps",
+          "mode": "list",
+          "cachedResultName": "Dados App Financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1754051256,
+          "mode": "list",
+          "cachedResultName": "AI_Insights",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h-xknv9IelCmariwIkh0lIGhSgwgQzHoG6V9nB9dsps/edit#gid=1754051256"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "insight_id": "={{ $('Save Insights').item.json.insight_id }}",
+            "audio_url": "={{ $json.audio_url }}",
+            "voice": "={{ $json.voice }}",
+            "tts_model": "={{ $json.tts_model }}",
+            "audio_status": "={{ $json.audio_status }}",
+            "audio_hash": "={{ $json.audio_hash }}",
+            "content_hash": "={{ $('Save Insights').item.json.content_hash }}",
+            "audio_updated_at": "={{ $json.audio_updated_at }}",
+            "audio_seconds": "={{ $json.audio_seconds }}"
+          },
+          "matchingColumns": [
+            "insight_id"
+          ],
+          "schema": [
+            {
+              "id": "insight_id",
+              "displayName": "insight_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "link_id",
+              "displayName": "link_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "source_from",
+              "displayName": "source_from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "source_to",
+              "displayName": "source_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "generated_at",
+              "displayName": "generated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "insight",
+              "displayName": "insight",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "action",
+              "displayName": "action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "metrics_json",
+              "displayName": "metrics_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "temperature",
+              "displayName": "temperature",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "prompt_tokens",
+              "displayName": "prompt_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "completion_tokens",
+              "displayName": "completion_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "audio_url",
+              "displayName": "audio_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "audio_status",
+              "displayName": "audio_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "audio_seconds",
+              "displayName": "audio_seconds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voice",
+              "displayName": "voice",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tts_model",
+              "displayName": "tts_model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "audio_updated_at",
+              "displayName": "audio_updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "audio_hash",
+              "displayName": "audio_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content_hash",
+              "displayName": "content_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        -352
+      ],
+      "id": "9e3093f5-95a9-46be-a2a2-db4eb9bcb10b",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uW5EFVki21ARxBHX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        608,
+        -16
+      ],
+      "id": "00c6604f-6797-4279-9b99-27b097f683c6",
+      "name": "Share file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0OoWbrd1L4oeIHaA",
+          "name": "Google Drive account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -628,7 +1143,7 @@
       "main": [
         [
           {
-            "node": "Append or update row in sheet1",
+            "node": "Save Insights",
             "type": "main",
             "index": 0
           }
@@ -674,17 +1189,101 @@
           }
         ]
       ]
+    },
+    "Save Insights": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build TTS Payload": {
+      "main": [
+        [
+          {
+            "node": "TTS — Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TTS — Request": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Share file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build TTS Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Share file": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "7542c022-cf90-42ee-b6b8-61efc23fcfe9",
+  "versionId": "5b997315-8d87-4873-a2ae-5ce44841af31",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "97ee746f263d76b0d63206a311d80c1cb2bf5798526b9a58072b9fa593fd48a2"
   },
-  "id": "O4cKDAle0NfC8dn3",
+  "id": "HXLjWFzwKSJ6c8Sq",
   "tags": []
 }

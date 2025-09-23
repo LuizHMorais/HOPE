@@ -157,3 +157,58 @@ All colors MUST be HSL - optimized for financial clarity and trust
     @apply bg-background text-foreground;
   }
 }
+
+/* Audio Player Styles */
+@layer components {
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .slider::-webkit-slider-track {
+    background: hsl(var(--muted));
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: hsl(var(--primary));
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid hsl(var(--background));
+    box-shadow: 0 2px 4px hsl(var(--foreground) / 0.1);
+  }
+
+  .slider::-webkit-slider-thumb:hover {
+    background: hsl(var(--primary) / 0.8);
+    transform: scale(1.1);
+  }
+
+  .slider::-moz-range-track {
+    background: hsl(var(--muted));
+    height: 8px;
+    border-radius: 4px;
+    border: none;
+  }
+
+  .slider::-moz-range-thumb {
+    background: hsl(var(--primary));
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid hsl(var(--background));
+    box-shadow: 0 2px 4px hsl(var(--foreground) / 0.1);
+  }
+
+  .slider::-moz-range-thumb:hover {
+    background: hsl(var(--primary) / 0.8);
+    transform: scale(1.1);
+  }
+}

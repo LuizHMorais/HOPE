@@ -5,6 +5,7 @@ import { AccountsOverview } from '@/components/AccountsOverview';
 import HeaderFilters from '@/components/HeaderFilters';
 import { AIInsights } from '@/components/AIInsights';
 import { DataStatus } from '@/components/DataStatus';
+import { AudioPlayer } from '@/components/AudioPlayer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -94,7 +95,7 @@ const Index = () => {
   const ownerData = getSelectedOwnerData();
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const [ytdMode, setYtdMode] = useState<boolean>(false);
+  const [ytdMode, setYtdMode] = useState<boolean>(true);
 
   const ownerMetrics = useMemo(
     () => (ytdMode
@@ -297,8 +298,8 @@ const Index = () => {
     <Card className="shadow-card hover:shadow-elevated transition-all duration-300">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
-          <Play className="w-5 h-5 text-primary" />
-          <span>Relatórios em áudio (preview)</span>
+          <Volume2 className="w-5 h-5 text-primary" />
+          <span>Relatórios em áudio</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -306,29 +307,35 @@ const Index = () => {
           Ouça resumos gerados pela IA com base nos principais insights financeiros do período.
         </p>
 
-        {insightsHighlights.length > 0 ? (
-          insightsHighlights.map((insight, index) => (
-            <div
-              key={`${insight.insight_id}-${index}`}
-              className="flex flex-col gap-2 rounded-lg border border-border p-3 md:flex-row md:items-center md:justify-between"
-            >
-              <div>
-                <p className="font-medium text-sm text-foreground">{insight.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatDateLabel(insight.generated_at)} â€¢ {insight.category || 'sem categoria'}
-                </p>
+        {/* Player de Áudio Integrado */}
+        <div className="flex justify-center">
+          <AudioPlayer 
+            audioUrl="/sample-audio.wav"
+            title="Relatório Financeiro - IA (TTS Local)"
+            className="w-full max-w-lg"
+          />
+        </div>
+
+        {/* Lista de Insights Disponíveis */}
+        {insightsHighlights.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-foreground">Insights Disponíveis:</h4>
+            {insightsHighlights.map((insight, index) => (
+              <div
+                key={`${insight.insight_id}-${index}`}
+                className="flex items-center justify-between p-2 rounded-lg border border-border bg-muted/30"
+              >
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">{insight.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDateLabel(insight.generated_at)} • {insight.category || 'sem categoria'}
+                  </p>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  {insight.priority || 'normal'}
+                </Badge>
               </div>
-              <Button size="sm" variant="outline">
-                <Play className="w-4 h-4 mr-2" />
-                Reproduzir
-              </Button>
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <Volume2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>Nenhum áudio disponível ainda.</p>
-            <p className="text-sm">Os relatórios serão liberados a partir da geração dos primeiros insights.</p>
+            ))}
           </div>
         )}
       </CardContent>
@@ -404,6 +411,7 @@ const Index = () => {
           onToggleYTD={setYtdMode}
           availableMonthsByYear={availableMonthsByYear}
         />
+
 
         <div className="text-left container mx-auto px-0">
           <h2 className="text-lg font-semibold text-foreground mb-2">Resumo do período</h2>
